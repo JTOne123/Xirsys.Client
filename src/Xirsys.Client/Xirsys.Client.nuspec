@@ -9,14 +9,13 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <iconUrl>http://xirsys.com/favicon.ico</iconUrl>
+    <projectUrl>https://github.com/influxis/Xirsys.Client</projectUrl>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Xirsys API</tags>
   </metadata>
   <files>
-    <file src="bin\$configuration$\v4.5\$id$.dll" target="lib\net45" />
-
-    <file src="bin\$configuration$\v4.5\$id$.pdb" target="lib\net45" />
+<!--    <file src="bin\$configuration$\v4.5\$id$.xml" target="lib\portable-net45+netcore45+wpa81+wp8" />-->
     <file src=".\**\*.cs" target="src" />
   </files>
 </package>
