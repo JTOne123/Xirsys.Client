@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <iconUrl>http://xirsys.com/favicon.ico</iconUrl>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Xirsys API</tags>
+  </metadata>
+  <files>
+    <file src="bin\$configuration$\v4.5\$id$.dll" target="lib\net45" />
+
+    <file src="bin\$configuration$\v4.5\$id$.pdb" target="lib\net45" />
+    <file src=".\**\*.cs" target="src" />
+  </files>
+</package>
