@@ -107,16 +107,5 @@ namespace Xirsys.Client.Serialization
         {
             return GetDateTimeFormat(precision, true);
         }
-
-        private static readonly DateTime EPOCH_DATETIME = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-        public static DateTime GetDateTimeFromUnix(this Int32 intUnixTimestamp)
-        {
-            return EPOCH_DATETIME.AddSeconds(intUnixTimestamp);
-        }
-
-        public static DateTime GetDateTimeFromUnix(this Int64 longUnixTimestamp)
-        {
-            return EPOCH_DATETIME.AddSeconds(longUnixTimestamp);
-        }
     }
 }

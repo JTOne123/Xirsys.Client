@@ -12,6 +12,26 @@ namespace Xirsys.Client.Utilities
             return String.Equals(response.Status, SystemMessages.OK_STATUS, StringComparison.CurrentCultureIgnoreCase);
         }
 
+
+        private static readonly DateTime EPOCH_DATETIME = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+        public static DateTime GetDateTimeFromUnix(this Int32 intUnixTimestamp)
+        {
+            return EPOCH_DATETIME.AddSeconds(intUnixTimestamp);
+        }
+
+        public static DateTime GetDateTimeFromUnix(this Int64 longUnixTimestamp)
+        {
+            return EPOCH_DATETIME.AddSeconds(longUnixTimestamp);
+        }
+
+        public static Double ToUnixTimestamp(this DateTime dateTime)
+        {
+            return dateTime.ToUniversalTime().Subtract(EPOCH_DATETIME).TotalSeconds;
+        }
+
+
+
         public static String ToHttpString(this List<KeyValuePair<String, String>> collection)
         {
             if (collection == null)

@@ -20,6 +20,8 @@ namespace Xirsys.Client
         public const String STATUS_PROP = "s";
         public const String VALUE_PROP = "v";
 
+        protected readonly JsonSerializerSettings m_JsonSerializerSettings;
+
         protected HttpClient m_HttpClient;
 
         private bool m_IsDisposed = false;
@@ -39,6 +41,12 @@ namespace Xirsys.Client
             this.BaseApiUrl = apiBaseUrl;
             this.Ident = apiIdent;
             this.Secret = apiSecret;
+
+            // don't serialize null values
+            m_JsonSerializerSettings = new JsonSerializerSettings()
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                };
         }
 
         public void Dispose()
@@ -289,7 +297,7 @@ namespace Xirsys.Client
 
             using (var httpReq = new HttpRequestMessage(HttpMethod.Post, BaseApiUrl + servicePath))
             {
-                httpReq.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+                httpReq.Content = new StringContent(JsonConvert.SerializeObject(data, Formatting.None, m_JsonSerializerSettings), Encoding.UTF8, "application/json");
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
                     (responseStr) => ParseResponse(responseStr, okParseResponse, null, null))
                     .ConfigureAwait(false);
@@ -306,7 +314,7 @@ namespace Xirsys.Client
 
             using (var httpReq = new HttpRequestMessage(HttpMethod.Put, BaseApiUrl + servicePath))
             {
-                httpReq.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+                httpReq.Content = new StringContent(JsonConvert.SerializeObject(data, Formatting.None, m_JsonSerializerSettings), Encoding.UTF8, "application/json");
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
                     (responseStr) => ParseResponse(responseStr, okParseResponse, null, null))
                     .ConfigureAwait(false);
