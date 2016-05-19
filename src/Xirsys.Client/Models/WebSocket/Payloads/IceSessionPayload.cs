@@ -10,8 +10,10 @@ namespace Xirsys.Client.Models.WebSocket.Payloads
         [DataMember]
         public IceSessionList Ice { get; set; }
 
+        [DataContract]
         public class IceSessionList
         {
+            [DataMember]
             public List<Server> IceServers { get; set; }
         }
     }
