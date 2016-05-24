@@ -18,20 +18,11 @@ namespace Xirsys.Client.Models.REST
         [DataMember(Name = "count")]
         public Int64 Count { get; set; }
 
-        public static StatsResponse operator +(StatsResponse m1, StatsResponse m2)
-        {
-            return new StatsResponse(
-                m1.Sum   + m2.Sum,
-                m1.Min   + m2.Min,
-                m1.Max   + m2.Max,
-                m1.Count + m2.Count);
-        }
-
         public StatsResponse()
         {
         }
 
-        public StatsResponse(long sum, long min, long max, long count)
+        public StatsResponse(Int64 sum, Int64 min, Int64 max, Int64 count)
         {
             this.Sum = sum;
             this.Min = min;
@@ -40,11 +31,52 @@ namespace Xirsys.Client.Models.REST
         }
 
         public StatsResponse(StatsResponse other)
+            : this(other.Sum, other.Min, other.Max, other.Count)
         {
-            this.Sum = other.Sum;
-            this.Min = other.Min;
-            this.Max = other.Max;
-            this.Count = other.Count;
+        }
+
+        protected Boolean Equals(StatsResponse other)
+        {
+            return Sum == other.Sum && Min == other.Min && Max == other.Max && Count == other.Count;
+        }
+
+        public override Boolean Equals(Object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((StatsResponse) obj);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            unchecked
+            {
+                Int32 hashCode = Sum.GetHashCode();
+                hashCode = (hashCode*397) ^ Min.GetHashCode();
+                hashCode = (hashCode*397) ^ Max.GetHashCode();
+                hashCode = (hashCode*397) ^ Count.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static Boolean operator ==(StatsResponse left, StatsResponse right)
+        {
+            return Equals(left, right);
+        }
+
+        public static Boolean operator !=(StatsResponse left, StatsResponse right)
+        {
+            return !Equals(left, right);
+        }
+
+        public static StatsResponse operator +(StatsResponse left, StatsResponse right)
+        {
+            return new StatsResponse(
+                left.Sum + right.Sum,
+                left.Min + right.Min,
+                left.Max + right.Max,
+                left.Count + right.Count);
         }
     }
 }

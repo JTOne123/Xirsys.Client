@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Xirsys.Client.Models.REST
@@ -22,9 +23,8 @@ namespace Xirsys.Client.Models.REST
         }
 
         public XirsysResponseModel(String status, TData data)
+            : this(status, null, data)
         {
-            this.Status = status;
-            this.Data = data;
         }
 
         public XirsysResponseModel(String status, String errorResponse, TData data)
@@ -35,10 +35,42 @@ namespace Xirsys.Client.Models.REST
         }
 
         public XirsysResponseModel(XirsysResponseModel<TData> other)
+            : this(other.Status, other.ErrorResponse, other.Data)
         {
-            this.Status = other.Status;
-            this.Data = other.Data;
-            this.ErrorResponse = other.ErrorResponse;
+        }
+
+        protected Boolean Equals(XirsysResponseModel<TData> other)
+        {
+            return String.Equals(Status, other.Status) && EqualityComparer<TData>.Default.Equals(Data, other.Data) && String.Equals(ErrorResponse, other.ErrorResponse);
+        }
+
+        public override Boolean Equals(Object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((XirsysResponseModel<TData>) obj);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            unchecked
+            {
+                Int32 hashCode = (Status != null ? Status.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ EqualityComparer<TData>.Default.GetHashCode(Data);
+                hashCode = (hashCode*397) ^ (ErrorResponse != null ? ErrorResponse.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static Boolean operator ==(XirsysResponseModel<TData> left, XirsysResponseModel<TData> right)
+        {
+            return Equals(left, right);
+        }
+
+        public static Boolean operator !=(XirsysResponseModel<TData> left, XirsysResponseModel<TData> right)
+        {
+            return !Equals(left, right);
         }
     }
 }
