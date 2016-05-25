@@ -11,7 +11,7 @@ namespace Xirsys.Client
 
         public Task<XirsysResponseModel<String>> GetTokenAsync(String path, String clientId, Nullable<Int32> expire = null)
         {
-            var qsParameters = new KeyValueList<String, String>(2);
+            var qsParameters = new QueryStringList(2);
 
             qsParameters.Add("k", clientId);
             if (expire.HasValue)

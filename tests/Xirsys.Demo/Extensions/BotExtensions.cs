@@ -1,7 +1,7 @@
 ﻿using System;
 using AIMLbot;
 
-namespace Xirsys.Test.Extensions
+namespace Xirsys.Demo.Extensions
 {
     public static class BotExtensions
     {

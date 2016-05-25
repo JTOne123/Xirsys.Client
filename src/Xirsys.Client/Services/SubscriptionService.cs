@@ -11,10 +11,11 @@ namespace Xirsys.Client
         protected const String SUBSCRIPTION_SERVICE = "_subs";
 
 
-        public Task<XirsysResponseModel<Object>> AddTopicAsync(String path, String topic)
-        {
-            throw new NotImplementedException();
-        }
+        // topics are created upon a websocket connection, you do not manually create them
+        //public Task<XirsysResponseModel<Object>> AddTopicAsync(String path, String topic)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public Task<XirsysResponseModel<Int32>> RemoveTopicAsync(String path, String topic)
         {
@@ -24,7 +25,7 @@ namespace Xirsys.Client
         public Task<XirsysResponseModel<List<Object>>> GetTopicAsync(String path, String topic)
         {
             return InternalGetAsync<List<Object>>(GetServiceMethodPath(SUBSCRIPTION_SERVICE, path, topic),
-                new KeyValueList<String, String>()
+                new QueryStringList(1)
                     {
                         { "as", "values" }
                     });
@@ -39,7 +40,7 @@ namespace Xirsys.Client
         public Task<XirsysResponseModel<Object>> GetSubscriptionUserAsync(String path, String topic, String clientId)
         {
             return InternalGetAsync<Object>(GetServiceMethodPath(SUBSCRIPTION_SERVICE, path, topic),
-                new KeyValueList<String, String>()
+                new QueryStringList(1)
                     {
                         { "k", clientId }
                     });
@@ -48,7 +49,7 @@ namespace Xirsys.Client
         public Task<XirsysResponseModel<Int32>> KickSubscriptionUserAsync(String path, String topic, String clientId)
         {
             return InternalDeleteAsync<Int32>(GetServiceMethodPath(SUBSCRIPTION_SERVICE, path, topic), 
-                new KeyValueList<String, String>(1)
+                new QueryStringList(1)
                     {
                         { "k", clientId }
                     });

@@ -21,7 +21,7 @@ namespace Xirsys.Client
         public Task<XirsysResponseModel<Int32>> RemoveDataKeyAsync(String path, String key)
         {
             return InternalDeleteAsync<Int32>(GetServiceMethodPath(DATA_SERVICE, path),
-                new KeyValueList<String, String>(1)
+                new QueryStringList(1)
                     {
                         { "k", key }
                     });
@@ -36,7 +36,7 @@ namespace Xirsys.Client
         public Task<XirsysResponseModel<TData>> GetDataKeyAsync<TData>(String path, String key)
         {
             return InternalGetAsync<TData>(GetServiceMethodPath(DATA_SERVICE, path),
-                new KeyValueList<String, String>(1)
+                new QueryStringList(1)
                     {
                         { "k", key }
                     });
@@ -50,7 +50,7 @@ namespace Xirsys.Client
         public async Task<XirsysResponseModel<List<TimeSeriesDataKey<Object>>>> GetDataKeyTimeSeriesAsync(String path, String key)
         {
             var apiResponse = await InternalGetAsync<List<List<Object>>>(GetServiceMethodPath(DATA_SERVICE, path),
-                new KeyValueList<String, String>(2)
+                new QueryStringList(2)
                     {
                         { "k", key },
                         { "time_series", "1" },
@@ -66,7 +66,7 @@ namespace Xirsys.Client
         public async Task<XirsysResponseModel<List<TimeSeriesDataKey<Object>>>> GetDataKeyTimeSeriesAsync(String path, String key, DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd)
         {
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
-            var parameters = new KeyValueList<String, String>(4)
+            var parameters = new QueryStringList(4)
                     {
                         { "k", key },
                         { "time_series", "1" },

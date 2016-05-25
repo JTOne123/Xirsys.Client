@@ -22,10 +22,10 @@ namespace Xirsys.Client
 
         public Task<XirsysResponseModel<List<String>>> GetPathNodesAsync(String path, Nullable<Int32> depth = null)
         {
-            KeyValueList<String, String> qsParameters = null;
+            QueryStringList qsParameters = null;
             if (depth.HasValue)
             {
-                qsParameters = new KeyValueList<String, String>(1)
+                qsParameters = new QueryStringList(1)
                     {
                         { "depth", depth.Value.ToString() }
                     };

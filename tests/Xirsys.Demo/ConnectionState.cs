@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using AIMLbot;
 using WebSocket4Net;
-using System.Collections.Concurrent;
 
-namespace Xirsys.Test
+namespace Xirsys.Demo
 {
     public class ConnectionState
     {

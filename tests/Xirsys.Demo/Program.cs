@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
@@ -8,14 +9,13 @@ using Newtonsoft.Json;
 using WebSocket4Net;
 using Xirsys.Client;
 using Xirsys.Client.Models.WebSocket;
+using Xirsys.Client.Models.WebSocket.Payloads;
 using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
-using Xirsys.Test.Extensions;
+using Xirsys.Demo.Extensions;
 using Xirsys.Demo.Logging;
-using System.Collections.Concurrent;
-using Xirsys.Client.Models.WebSocket.Payloads;
 
-namespace Xirsys.Test
+namespace Xirsys.Demo
 {
     class Program
     {

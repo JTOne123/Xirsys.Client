@@ -78,6 +78,7 @@
     <Compile Include="Services\TurnService.cs" />
     <Compile Include="Utilities\ErrorMessages.cs" />
     <Compile Include="Utilities\ExtensionMethods.cs" />
+    <Compile Include="Utilities\QueryStringList.cs" />
     <Compile Include="Utilities\SystemMessages.cs" />
     <Compile Include="XirsysApiClient.cs" />
     <Compile Include="Services\StatsService.cs" />

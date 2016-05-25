@@ -31,7 +31,7 @@ namespace Xirsys.Client
             ValidateMeasurement(measurement);
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
 
-            var parameters = new KeyValueList<String, String>(3)
+            var parameters = new QueryStringList(3)
                 {
                     { "l", measurement.ToStringValue() },
                     { "gs", groupStart.ToString(dateTimeStrFormat) },
@@ -52,7 +52,7 @@ namespace Xirsys.Client
             ValidateMeasurement(measurement);
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
 
-            var parameters = new KeyValueList<String, String>(4)
+            var parameters = new QueryStringList(4)
                 {
                     { "l", measurement.ToStringValue() },
                     { "break", "1" },
@@ -80,7 +80,7 @@ namespace Xirsys.Client
             ValidateApiHttpVerb(apiHttpVerb);
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
 
-            var parameters = new KeyValueList<String, String>(3)
+            var parameters = new QueryStringList(3)
                 {
                     { "l", StatMeasurement.ApiCalls.ToStringValue() },
                     { "gs", groupStart.ToString(dateTimeStrFormat) },
@@ -107,7 +107,7 @@ namespace Xirsys.Client
             ValidateApiHttpVerb(apiHttpVerb);
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
 
-            var parameters = new KeyValueList<String, String>(4)
+            var parameters = new QueryStringList(4)
                 {
                     { "l", StatMeasurement.ApiCalls.ToStringValue() },
                     { "break", "1" },

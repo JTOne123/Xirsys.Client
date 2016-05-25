@@ -18,7 +18,7 @@ namespace Xirsys.Client
         public Task<XirsysResponseModel<TData>> GetBlockIpAddressAsync<TData>(String path, String ipAddress)
         {
             return InternalGetAsync<TData>(GetServiceMethodPath(AUTH_SERVICE, path),
-                new KeyValueList<String, String>(1)
+                new QueryStringList(1)
                     {
                         { "k", ipAddress }
                     });
@@ -38,7 +38,7 @@ namespace Xirsys.Client
         public Task<XirsysResponseModel<Int32>> RemoveBlockIpAddressAsync(String path, String ipAddress)
         {
             return InternalDeleteAsync<Int32>(GetServiceMethodPath(AUTH_SERVICE, path),
-                new KeyValueList<String, String>(1)
+                new QueryStringList(1)
                     {
                         { "k", ipAddress }
                     });
