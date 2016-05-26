@@ -11,7 +11,6 @@ namespace Xirsys.Client
     {
         protected const String DATA_SERVICE = "_data";
 
-        // currently broken if value is a List/Enumerable type of object
         public Task<XirsysResponseModel<NullData>> AddDataKeyAsync<TData>(String path, String key, TData value)
         {
             return InternalPostAsync<Object, NullData>(GetServiceMethodPath(DATA_SERVICE, path), 

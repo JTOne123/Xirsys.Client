@@ -13,7 +13,6 @@ namespace Xirsys.Client
             return InternalGetAsync<String>($"/{HOST_SERVICE}/best/signal");
         }
 
-        // failing
         public Task<XirsysResponseModel<String>> GetBestTurnServerAsync()
         {
             return InternalGetAsync<String>($"/{HOST_SERVICE}/best/turn");
