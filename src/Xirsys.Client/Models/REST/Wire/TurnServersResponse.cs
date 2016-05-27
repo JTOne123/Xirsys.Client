@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Xirsys.Client.Models.REST
+namespace Xirsys.Client.Models.REST.Wire
 {
     public class TurnServersResponse
     {
-        public List<Server> IceServers { get; protected set; }
+        public List<ServerModel> IceServers { get; protected set; }
 
         public TurnServersResponse()
         {
-            this.IceServers = new List<Server>();
+            this.IceServers = new List<ServerModel>();
         }
 
-        public TurnServersResponse(List<Server> iceServers)
+        public TurnServersResponse(List<ServerModel> iceServers)
         {
-            this.IceServers = iceServers ?? new List<Server>();
+            this.IceServers = iceServers ?? new List<ServerModel>();
         }
 
         public TurnServersResponse(TurnServersResponse other)

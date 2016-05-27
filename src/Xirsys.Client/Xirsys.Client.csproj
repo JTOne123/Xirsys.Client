@@ -38,6 +38,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
+    <Compile Include="Models\REST\IceServerModel.cs" />
+    <Compile Include="Models\REST\NatTraversalProtocol.cs" />
+    <Compile Include="Models\REST\ServerTransportLayer.cs" />
     <Compile Include="Utilities\KeyValueList.cs" />
     <Compile Include="Models\REST\ApiHttpVerb.cs" />
     <Compile Include="Models\REST\ApiService.cs" />
@@ -62,10 +65,10 @@
     <Compile Include="Serialization\Converters\SessionPayloadTypeConverter.cs" />
     <Compile Include="Serialization\Converters\StatMeasurementConverter.cs" />
     <Compile Include="Serialization\SerializeExtensions.cs" />
-    <Compile Include="Models\REST\Server.cs" />
+    <Compile Include="Models\REST\Wire\ServerModel.cs" />
     <Compile Include="Models\REST\StatMeasurement.cs" />
     <Compile Include="Models\REST\TopicData.cs" />
-    <Compile Include="Models\REST\TurnServersResponse.cs" />
+    <Compile Include="Models\REST\Wire\TurnServersResponse.cs" />
     <Compile Include="Models\REST\XirsysResponseModel.cs" />
     <Compile Include="Models\REST\StatsResponse.cs" />
     <Compile Include="Services\AuthorizationService.cs" />

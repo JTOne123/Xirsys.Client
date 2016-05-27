@@ -38,8 +38,8 @@ namespace Xirsys.Demo
             finally
             {
                 Log.Info("Done");
-                System.Console.WriteLine("Press any key to exit");
-                System.Console.ReadKey();
+                Console.WriteLine("Press any key to exit");
+                Console.ReadKey();
             }
         }
 

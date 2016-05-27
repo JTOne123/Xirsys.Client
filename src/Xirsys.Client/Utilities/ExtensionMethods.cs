@@ -70,5 +70,99 @@ namespace Xirsys.Client.Utilities
             return String.Join("&", items);
 #endif
         }
+
+        public static List<KeyValuePair<String, String>> ParseQueryString(this String queryString)
+        {
+            if (queryString == null)
+            {
+                return new QueryStringList(0);
+            }
+            if (queryString.Length == 0 || (queryString.Length == 1 && queryString[0] == '?'))
+            {
+                return new QueryStringList(0);
+            }
+
+            // chomp off querystring init
+            if (queryString[0] == '?')
+            {
+                queryString = queryString.Substring(1);
+            }
+
+            // parse into our simple KeyValueList implementation
+            var queryList = new QueryStringList();
+            ParseQueryString(queryString, queryList);
+            return queryList;
+        }
+
+        static void ParseQueryString(String queryString, List<KeyValuePair<String, String>> queryList)
+        {
+            if (queryString.Length == 0)
+            {
+                return;
+            }
+
+            int qsLength = queryString.Length;
+            // position of current key value pair (with =)
+            // between their concat character ampersand
+            int pairPos = 0;
+            // loop until end of querystring
+            while (pairPos <= qsLength)
+            {
+                // indicate start index of value str
+                int valuePos = -1, 
+                // indicates end index of value str
+                    valueEnd = -1;
+                // loop through our queryString until we find next pair between ampersand
+                // or end of string
+                for (int pos = pairPos; pos < qsLength; pos++)
+                {
+                    if (valuePos == -1 && queryString[pos] == '=')
+                    {
+                        valuePos = pos + 1;
+                    }
+                    else if (queryString[pos] == '&')
+                    {
+                        valueEnd = pos;
+                        break;
+                    }
+                }
+
+                string name, 
+                       value;
+                if (valuePos == -1)
+                {
+                    // no value present
+                    name = null;
+                    valuePos = pairPos;
+                }
+                else
+                {
+                    // unescape string
+                    name = Uri.UnescapeDataString(queryString.Substring(pairPos, valuePos - pairPos - 1));
+                }
+                if (valueEnd < 0)
+                {
+                    // we are at end of string, set pairPos -1 to signal break
+                    pairPos = -1;
+                    // valueEnd is simply end of qs
+                    valueEnd = queryString.Length;
+                }
+                else
+                {
+                    // next pair is right after ampersand
+                    pairPos = valueEnd + 1;
+                }
+                // unescape string
+                value = Uri.UnescapeDataString(queryString.Substring(valuePos, valueEnd - valuePos));
+
+                // add unescaped strings to list
+                queryList.Add(new KeyValuePair<String, String>(name, value));
+                // if this was signaled, at end of querystring
+                if (pairPos == -1)
+                {
+                    break;
+                }
+            }
+        }
     }
 }

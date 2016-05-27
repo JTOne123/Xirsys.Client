@@ -71,8 +71,8 @@
       <HintPath>..\..\packages\WebSocket4Net.0.14.1\lib\net45\WebSocket4Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Xirsys.Client, Version=1.0.0.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xirsys.Client.1.0.0.3\lib\portable45-net45+win8+wp8+wpa81\Xirsys.Client.dll</HintPath>
+    <Reference Include="Xirsys.Client, Version=1.0.0.9, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xirsys.Client.1.0.0.9\lib\portable45-net45+win8+wp8+wpa81\Xirsys.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -372,7 +372,6 @@
     <None Include="packages.config" />
     <None Include="Properties\SlowCheetah\SlowCheetah.Transforms.targets" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="..\ThirdPartyReferences\config\DefaultPredicates.xml">
       <Link>botconfig\DefaultPredicates.xml</Link>

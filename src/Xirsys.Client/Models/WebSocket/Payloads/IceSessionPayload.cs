@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Xirsys.Client.Models.REST;
+using Xirsys.Client.Models.REST.Wire;
 
 namespace Xirsys.Client.Models.WebSocket.Payloads
 {
@@ -14,7 +14,7 @@ namespace Xirsys.Client.Models.WebSocket.Payloads
         public class IceSessionList
         {
             [DataMember]
-            public List<Server> IceServers { get; set; }
+            public List<ServerModel> IceServers { get; set; }
         }
     }
 }

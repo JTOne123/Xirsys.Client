@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Xirsys.Client.Models.REST
+namespace Xirsys.Client.Models.REST.Wire
 {
     [DataContract]
-    public class Server
+    public class ServerModel
     {
         [DataMember(Name = "username")]
         public String UserName { get; set; }
@@ -15,28 +15,28 @@ namespace Xirsys.Client.Models.REST
         [DataMember]
         public String Credential { get; set; }
 
-        public Server()
+        public ServerModel()
         {
         }
 
-        public Server(String url)
+        public ServerModel(String url)
             : this(null, url, null)
         {
         }
 
-        public Server(String userName, String url, String credential)
+        public ServerModel(String userName, String url, String credential)
         {
             this.UserName = userName;
             this.Url = url;
             this.Credential = credential;
         }
 
-        public Server(Server other)
+        public ServerModel(ServerModel other)
             : this(other.UserName, other.Url, other.Credential)
         {
         }
 
-        protected Boolean Equals(Server other)
+        protected Boolean Equals(ServerModel other)
         {
             return String.Equals(UserName, other.UserName) && String.Equals(Url, other.Url) && String.Equals(Credential, other.Credential);
         }
@@ -46,7 +46,7 @@ namespace Xirsys.Client.Models.REST
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Server) obj);
+            return Equals((ServerModel) obj);
         }
 
         public override Int32 GetHashCode()
@@ -60,12 +60,12 @@ namespace Xirsys.Client.Models.REST
             }
         }
 
-        public static Boolean operator ==(Server left, Server right)
+        public static Boolean operator ==(ServerModel left, ServerModel right)
         {
             return Equals(left, right);
         }
 
-        public static Boolean operator !=(Server left, Server right)
+        public static Boolean operator !=(ServerModel left, ServerModel right)
         {
             return !Equals(left, right);
         }
