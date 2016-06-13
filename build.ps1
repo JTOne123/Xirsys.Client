@@ -3,7 +3,7 @@ nuget install psake -OutputDirectory .\packages -Version "$psake_version" -Sourc
 
 Import-Module .\packages\psake.$psake_version\tools\psake.psm1
 
-$version = "1.0.0.0"
+$version = "1.0.1.0"
 $framework_versions = "v4.5"
 
 Invoke-Psake .\default.ps1 "NugetClean" -framework "4.6x64" -parameters @{ "SolutionPath"="$(Resolve-Path .)"; }

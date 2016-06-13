@@ -14,10 +14,7 @@
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-final",
     "NLog": "4.3.4",
     "WebSocket4Net": "0.14.1",
-
-    "Xirsys.Client": {
-      "target": "project"
-    }
+    "Xirsys.Client": "1.0.1.12"
   },
 
   "frameworks": {
