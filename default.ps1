@@ -2,9 +2,11 @@ properties {
     $solution_directory = $SolutionPath
     $project_dir_name = $ProjectDirectoryName
     $csproj_filename = if ($CsProjectFileName) { $CsProjectFileName } else { "$ProjectDirectoryName.csproj" }
+    $xproj_filename = if ($XProjectFileName) { $XProjectFileName } else { "$ProjectDirectoryName.xproj" }
     
     $project_directory = "$solution_directory\$project_dir_name"
     $csproj_file = "$solution_directory\$project_dir_name\$csproj_filename"
+    $xproj_file = "$solution_directory\$project_dir_name\$xproj_filename"
     
     $assembly_version_cs_file = "$solution_directory\$project_dir_name\Properties\VersionAssemblyInfo.cs"
     
@@ -90,6 +92,16 @@ function Get-SvnRevisionNumber {
     {
         return $null
     }
+}
+
+function Update-ProjectJson-Version([string]$projectJsonFilePath, [string]$projectVersion) {
+    if (-Not (Test-Path "$projectJsonFilePath")) {
+        Write-Error "project.json file not found: $projectJsonFilePath"
+        return
+    }
+
+    $versionRegex = New-Object Regex('("version":) *".*"')
+    $versionRegex.Replace((Get-Content -Raw "$projectJsonFilePath"), ('$1 "' + "$projectVersion" + '"'), 1) | Out-File "$projectJsonFilePath"
 }
 
 Task default -depends Validate, Clean, CreateNuGetPackage
@@ -179,4 +191,57 @@ Task CreateNuGetPackage -depends Compile {
 	} else {
 		exec { . "$nuget_path" pack "$csproj_file" -Properties "Configuration=$target_config;TargetFrameworkVersion=$singleVersion;BaseOutputPath=$output_directory\$project_dir_name;" -BasePath "$output_directory\$project_dir_name" -OutputDirectory "$dist_directory" -Version "$packageVersion" -Verbosity quiet }
 	}
+}
+
+Task DotNetCompile {
+    $vSplit = $version.Split('.')
+    $ignore = 0
+    if($vSplit.Length -ne 4 `
+        -Or -Not [System.UInt32]::TryParse($vSplit[0], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[1], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[2], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[3], [ref] $ignore))
+    {
+        throw "Version number is invalid. Must be in the form of 0.0.0.0"
+    }
+    $major = $vSplit[0]
+    $minor = $vSplit[1]
+    $patch = $vSplit[2]
+    $rev = Get-RevisionNumber $vSplit[3] "0"
+    $packageVersion = "$major.$minor.$patch.$rev"
+    Update-ProjectJson-Version "$project_directory\project.json" "$packageVersion"
+    
+    exec { . "dotnet" restore "$project_directory" --verbosity Minimal }
+    exec { . "dotnet" build "$project_directory" --configuration "$target_config" }
+}
+
+Task DotNetPack {
+    $vSplit = $version.Split('.')
+    $ignore = 0
+    if($vSplit.Length -ne 4 `
+        -Or -Not [System.UInt32]::TryParse($vSplit[0], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[1], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[2], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[3], [ref] $ignore))
+    {
+        throw "Version number is invalid. Must be in the form of 0.0.0.0"
+    }
+    $major = $vSplit[0]
+    $minor = $vSplit[1]
+    $patch = $vSplit[2]
+    $rev = Get-RevisionNumber $vSplit[3] "0"
+    if ($preRelease)
+    {
+        $packageVersion = "$major.$minor.$patch-$preRelease" 
+    }
+    else
+    {
+        $packageVersion = "$major.$minor.$patch.$rev"
+    }
+    Update-ProjectJson-Version "$project_directory\project.json" "$packageVersion"
+    
+    New-Item $dist_directory -Type Directory -Force | Out-Null
+    
+	exec { . "dotnet" restore "$project_directory" --verbosity Minimal }
+    exec { . "dotnet" pack "$project_directory" --configuration "$target_config" --output "$dist_directory" }
 }

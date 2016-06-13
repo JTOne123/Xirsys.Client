@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>AIMLbot</id>
+    <version>2.5.0</version>
+    <authors>ntoll.org</authors>
+    <owners>ntoll.org</owners>
+    <projectUrl>https://sourceforge.net/projects/aimlbot/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>AIML bot</description>
+    <copyright>Copyright 2016</copyright>
+    <tags>aiml chatbot program#</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="AIMLbot.dll" target="lib\net45\AIMLbot.dll" />
+  </files>
+</package>

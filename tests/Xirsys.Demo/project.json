@@ -1,0 +1,33 @@
+﻿{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "copyToOutput": {
+      "include": [ "aiml", "botconfig" ],
+      "includeFiles": [ "config.json", "config.json.user", "NLog.config" ]
+    }
+  },
+
+  "dependencies": {
+    "AIMLbot": "2.5.0",
+    "LibLog": "4.2.5",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-final",
+    "NLog": "4.3.4",
+    "WebSocket4Net": "0.14.1",
+
+    "Xirsys.Client": {
+      "target": "project"
+    }
+  },
+
+  "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "System": "4.0.0.0",
+        "System.Collections": "4.0.0.0",
+        "System.Runtime": "4.0.10.0",
+        "System.Threading.Tasks": "4.0.0.0"
+      }
+    }
+  }
+}

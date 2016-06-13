@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AIMLbot;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using WebSocket4Net;
 using Xirsys.Client;
@@ -24,17 +24,26 @@ namespace Xirsys.Demo
 
         private static readonly TimeSpan RECONNECT_DELAY = TimeSpan.FromSeconds(3);
 
+        private static IConfiguration Configuration;
+
         static void Main(String[] args)
         {
             try
             {
+                var configurationBuilder = new ConfigurationBuilder();
+
+                configurationBuilder.AddJsonFile("config.json");
+                configurationBuilder.AddJsonFile("config.json.user", true);
+
+                Configuration = configurationBuilder.Build();
+                
                 var t = MainAsync(args);
                 t.Wait();
             }
             catch (Exception ex)
             {
                 Log.ErrorException("Exception", ex);
-            }
+             }
             finally
             {
                 Log.Info("Done");
@@ -61,7 +70,9 @@ namespace Xirsys.Demo
             kaceyBot.isAcceptingUserInput = true;
 
             // setup our initial xirsysclient
-            var xirsysClient = new XirsysApiClient(ConfigurationManager.AppSettings["xirsysIdent"], ConfigurationManager.AppSettings["xirsysSecret"]);
+            var xirsysClient = new XirsysApiClient(
+                Configuration["xirsysIdent"],
+                Configuration["xirsysSecret"]);
 
             // get url for signal server
             var signalServerUrl = await xirsysClient.GetBestSignalServerAsync();
@@ -70,7 +81,7 @@ namespace Xirsys.Demo
                 return;
             }
 
-            String appPath = ConfigurationManager.AppSettings["xirsysPath"];
+            String appPath = Configuration["xirsysPath"];
             String botName = "Kacey";
 
             // acquire token for bot
