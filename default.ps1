@@ -3,6 +3,7 @@ properties {
     $project_dir_name = $ProjectDirectoryName
     $csproj_filename = if ($CsProjectFileName) { $CsProjectFileName } else { "$ProjectDirectoryName.csproj" }
     $xproj_filename = if ($XProjectFileName) { $XProjectFileName } else { "$ProjectDirectoryName.xproj" }
+	$nuspec_filename = if ($NuSpecProjectFileName) { $NuSpecProjectFileName } else { "$ProjectDirectoryName.nuspec" }
     
     $project_directory = "$solution_directory\$project_dir_name"
     $csproj_file = "$solution_directory\$project_dir_name\$csproj_filename"
@@ -19,10 +20,11 @@ properties {
     $git_path = "git.exe"
     $svn_path = "svn.exe"
     $nuget_path = "nuget.exe"
-    
+    $msbuild_path = "MSBuild.exe"
+
     $vcs = "git"
     $use_vcs_revision_number = $true
-    
+
     $version = "1.0.0.0"
     $assembly_info_file = "AssemblyInfo"
     $preRelease = $null
@@ -124,6 +126,7 @@ Task NugetClean {
     {
         throw "Invalid Properties"
     }
+
     Remove-Item -Recurse -Force -Path $output_directory -ea SilentlyContinue
     Remove-Item -Recurse -Force -Path $dist_directory -ea SilentlyContinue
 }
@@ -131,7 +134,7 @@ Task NugetClean {
 Task Clean {
     foreach ($singleVersion in $framework_versions.Split(","))
     {
-        exec { msbuild /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" "/p:TargetFrameworkVersion=$singleVersion" "/p:BaseOutputPath=$output_directory\$project_dir_name" /t:Clean }
+        exec { . "$msbuild_path" /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" /t:Clean }
     }
 }
 
@@ -151,12 +154,33 @@ Task Compile {
     $patch = $vSplit[2]
     $rev = Get-RevisionNumber $vSplit[3] "0"
     $packageVersion = "$major.$minor.$patch.$rev"
-    
+
     exec { . "$nuget_path" restore "$solution_directory" -Verbosity quiet }
     foreach ($singleVersion in $framework_versions.Split(","))
     {
-        exec { msbuild /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" "/p:TargetFrameworkVersion=$singleVersion" "/p:BaseOutputPath=$output_directory\$project_dir_name" "/p:VersionAssembly=$packageVersion" "/p:VersionAssemblyFile=$assembly_info_file" }
+        exec { . "$msbuild_path" /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" "/p:VersionAssembly=$packageVersion" "/p:VersionAssemblyFile=$assembly_info_file" }
     }
+}
+
+Task NetStandardPackage {
+    $vSplit = $version.Split('.')
+    $ignore = 0
+    if($vSplit.Length -ne 4 `
+        -Or -Not [System.UInt32]::TryParse($vSplit[0], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[1], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[2], [ref] $ignore) `
+        -Or -Not [System.UInt32]::TryParse($vSplit[3], [ref] $ignore))
+    {
+        throw "Version number is invalid. Must be in the form of 0.0.0.0"
+    }
+    $major = $vSplit[0]
+    $minor = $vSplit[1]
+    $patch = $vSplit[2]
+    $rev = Get-RevisionNumber $vSplit[3] "0"
+    $packageVersion = "$major.$minor.$patch.$rev"
+
+    exec { . "$nuget_path" restore "$solution_directory" -Verbosity quiet }
+    exec { . "$msbuild_path" /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" "/p:Version=$packageVersion" "/p:PackageVersion=$packageVersion" "/p:InformationalVersion=$packageVersion" "/p:AssemblyVersion=$packageVersion" "/p:FileVersion=$packageVersion" "/p:IncludeSymbols=$($includeSymbols.ToString().ToLower())" "/t:Clean;Build;Pack" }
 }
 
 Task CreateNuGetPackage -depends Compile {
