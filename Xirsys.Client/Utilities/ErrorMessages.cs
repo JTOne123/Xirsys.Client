@@ -42,6 +42,7 @@ namespace Xirsys.Client.Utilities
 
         public const String VersionMissing = "_ver_missing";
         public const String VersionConflict = "version_conflict";
+        public const String Locked = "locked";
 
 
         // our own errors
