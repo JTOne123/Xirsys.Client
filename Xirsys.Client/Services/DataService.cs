@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Xirsys.Client.Models.REST;
+using Xirsys.Client.Models.REST.Wire;
 using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
 
@@ -11,11 +16,53 @@ namespace Xirsys.Client
     {
         protected const String DATA_SERVICE = "_data";
 
-        public Task<XirsysResponseModel<NullData>> AddDataKeyAsync<TData>(String path, String key, TData value)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value)
         {
-            return InternalPostAsync<Object, NullData>(GetServiceMethodPath(DATA_SERVICE, path), 
-                new { k = key, v = value });
+            return AddDataKeyAsync(path, key, value, null);
         }
+
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, String oldVersion)
+        {
+            KeyValueModel<Object> addDataObj;
+            Func<KeyValueModel<Object>, String> serializeDataFunc;
+            Func<String, JObject, XirsysResponseModel<DataVersionResponse<TData>>> okParseFunc;
+
+            if (oldVersion != null)
+            {
+                serializeDataFunc = (contentData) =>
+                    {
+                        var intermediateObj = JObject.FromObject(contentData);
+                        var valueToken = intermediateObj[KeyValueModel<Object>.VALUE_PROP];
+                        if (valueToken == null || valueToken.Type != JTokenType.Object)
+                        {
+                            Log.LogWarning("Failed to locate {0} property in Content model. Cannot insert {1} property.", KeyValueModel<Object>.VALUE_PROP, VersionResponse.VERSION_PROP);
+                        }
+                        else
+                        {
+                            valueToken[VersionResponse.VERSION_PROP] = oldVersion;
+                        }
+                        return intermediateObj.ToString(Formatting.None);
+                    };
+            }
+            else
+            {
+                serializeDataFunc = null;
+            }
+
+            if (value != null && value.GetType().IsSimpleType())
+            {
+                addDataObj = new KeyValueModel<Object>(key, new SimpleDataWrapper<TData>(value));
+                okParseFunc = SimpleDataParseResponseWithVersion<TData>;
+            }
+            else
+            {
+                addDataObj = new KeyValueModel<Object>(key, value);
+                okParseFunc = DataParseResponseWithVersion<TData>;
+            }
+
+            return InternalPutAsync(GetServiceMethodPath(DATA_SERVICE, path), addDataObj, serializeContentData: serializeDataFunc, okParseResponse: okParseFunc);
+        }
+
 
         public Task<XirsysResponseModel<Int32>> RemoveDataKeyAsync(String path, String key)
         {
@@ -32,13 +79,23 @@ namespace Xirsys.Client
             return InternalDeleteAsync<Int32>(GetServiceMethodPath(DATA_SERVICE, path));
         }
 
-        public Task<XirsysResponseModel<TData>> GetDataKeyAsync<TData>(String path, String key)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> GetDataKeyAsync<TData>(String path, String key)
         {
-            return InternalGetAsync<TData>(GetServiceMethodPath(DATA_SERVICE, path),
-                new QueryStringList(1)
-                    {
-                        { "k", key }
-                    });
+            Func<String, JObject, XirsysResponseModel<DataVersionResponse<TData>>> okSerializeFunc;
+            var qs = new QueryStringList(1)
+                {
+                    {"k", key}
+                };
+
+            if (typeof(TData).IsSimpleType())
+            {
+                okSerializeFunc = SimpleDataParseResponseWithVersion<TData>;
+            }
+            else
+            {
+                okSerializeFunc = DataParseResponseWithVersion<TData>;
+            }
+            return InternalGetAsync(GetServiceMethodPath(DATA_SERVICE, path), qs, okSerializeFunc);
         }
 
         public Task<XirsysResponseModel<List<String>>> ListDataKeysAsync(String path)
@@ -46,9 +103,9 @@ namespace Xirsys.Client
             return InternalGetAsync<List<String>>(GetServiceMethodPath(DATA_SERVICE, path));
         }
 
-        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<Object>>>> GetDataKeyTimeSeriesAsync(String path, String key)
+        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key)
         {
-            var apiResponse = await InternalGetAsync<List<List<Object>>>(GetServiceMethodPath(DATA_SERVICE, path),
+            var apiResponse = await InternalGetAsync<List<List<JToken>>>(GetServiceMethodPath(DATA_SERVICE, path),
                 new QueryStringList(2)
                     {
                         { "k", key },
@@ -56,13 +113,13 @@ namespace Xirsys.Client
                     })
                     .ConfigureAwait(false);
 
-            return new XirsysResponseModel<List<TimeSeriesDataKey<Object>>>(
+            return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status, 
                 apiResponse.ErrorResponse,
-                ConvertResult(apiResponse.Data));
+                ConvertResult<TData>(apiResponse.Data));
         }
 
-        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<Object>>>> GetDataKeyTimeSeriesAsync(String path, String key, DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd)
+        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key, DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd)
         {
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
             var parameters = new QueryStringList(4)
@@ -76,23 +133,23 @@ namespace Xirsys.Client
                 // if groupEnd is not specified the end date becomes the last DateTime within groupPrecision
                 parameters.Add("ge", groupEnd.Value.ToString(dateTimeStrFormat));
             }
-            var apiResponse = await InternalGetAsync<List<List<Object>>>(GetServiceMethodPath(DATA_SERVICE, path), parameters)
+            var apiResponse = await InternalGetAsync<List<List<JToken>>>(GetServiceMethodPath(DATA_SERVICE, path), parameters)
                 .ConfigureAwait(false);
 
-            return new XirsysResponseModel<List<TimeSeriesDataKey<Object>>>(
+            return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status,
                 apiResponse.ErrorResponse,
-                ConvertResult(apiResponse.Data));
+                ConvertResult<TData>(apiResponse.Data));
         }
 
-        private static List<TimeSeriesDataKey<Object>> ConvertResult(List<List<Object>> listOfLists)
+        private static List<TimeSeriesDataKey<TResponseData>> ConvertResult<TResponseData>(List<List<JToken>> listOfLists)
         {
             if (listOfLists == null)
             {
-                return new List<TimeSeriesDataKey<Object>>();
+                return new List<TimeSeriesDataKey<TResponseData>>();
             }
 
-            var timeSeriesData = new List<TimeSeriesDataKey<Object>>(listOfLists.Count);
+            var timeSeriesData = new List<TimeSeriesDataKey<TResponseData>>(listOfLists.Count);
             foreach (var innerList in listOfLists)
             {
                 // returns a weird inner array which should have 3 items
@@ -106,13 +163,75 @@ namespace Xirsys.Client
                 }
                 // ignore more than 3 items
 
-                timeSeriesData.Add(new TimeSeriesDataKey<Object>(
-                    ((Int64)innerList[0]).GetDateTimeFromUnix(),
-                    (String)innerList[1],
-                    innerList[2]));
+                if (!(innerList[0] is JValue) ||
+                    !(innerList[1] is JValue) ||
+                    !(innerList[2] is JObject))
+                {
+                    // one of the types is invalid
+                    continue;
+                }
+
+                timeSeriesData.Add(new TimeSeriesDataKey<TResponseData>(
+                    innerList[0].ToObject<Int64>().GetDateTimeFromUnix(),
+                    innerList[1].ToObject<String>(),
+                    innerList[2].ToObject<TResponseData>()));
             }
 
             return timeSeriesData;
+        }
+
+        protected XirsysResponseModel<DataVersionResponse<TResponseData>> DataParseResponseWithVersion<TResponseData>(String responseStr, JObject parsedJObject)
+        {
+            return DataParseResponseWithVersion<TResponseData, TResponseData>(responseStr, parsedJObject, (deserialized) => deserialized);
+        }
+
+        protected XirsysResponseModel<DataVersionResponse<TResponseData>> SimpleDataParseResponseWithVersion<TResponseData>(String responseStr, JObject parsedJObject)
+        {
+            return DataParseResponseWithVersion<TResponseData, SimpleDataWrapper<TResponseData>>(responseStr, parsedJObject, (deserialized) => deserialized.Value);
+        }
+
+        protected XirsysResponseModel<DataVersionResponse<TResponseData>> DataParseResponseWithVersion<TResponseData, TSerializedData>(String responseStr, JObject parsedJObject,
+            Func<TSerializedData, TResponseData> serializedToResponseFunc = null)
+        {
+            var valueToken = parsedJObject[VALUE_PROP];
+            if (valueToken == null ||
+                valueToken.Type != JTokenType.Object)
+            {
+                // value should never be null or NOT an object, if it is the service layer has some bugs
+                Log.LogWarning("Invalid Xirsys Api Response. Value property is null or not an object. Response: {0}", responseStr);
+                return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null);
+            }
+
+            var valueData = valueToken.ToObject<TSerializedData>();
+            if (valueData == null)
+            {
+                // likewise if we can't serialize back to data type, there is a problem
+                Log.LogWarning("Invalid Xirsys Api Response. Value property did not deserialize to {0}. Response: {1}", typeof(TSerializedData).Name, responseStr);
+                return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null);
+            }
+
+            var versionToken = valueToken[VersionResponse.VERSION_PROP];
+            String versionValue;
+            if (versionToken != null &&
+                versionToken.Type == JTokenType.String)
+            {
+                versionValue = versionToken.ToObject<String>();
+                if (String.IsNullOrEmpty(versionValue))
+                {
+                    // sort of a problem, but we can continue
+                    Log.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was empty. Response: {{1}}", responseStr);
+                    versionValue = String.Empty;
+                }
+            }
+            else
+            {
+                // sort of a problem, but we can continue
+                Log.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was not present or invalid type. Response: {{1}}", responseStr);
+                versionValue = String.Empty;
+            }
+
+            var responseWithVersion = new DataVersionResponse<TResponseData>(serializedToResponseFunc(valueData), versionValue);
+            return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.OK_STATUS, responseWithVersion);
         }
     }
 }
