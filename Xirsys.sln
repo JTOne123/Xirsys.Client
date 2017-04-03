@@ -1,20 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E5E2E2E5-C9CA-4944-BBA4-974D7F7011C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xirsys.Client", "Xirsys.Client\Xirsys.Client.csproj", "{4DDF7897-6C2B-4516-95C3-B2A0CD34BD06}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AE75816E-8B26-4664-87C9-4C881D3C8410}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Xirsys.Client", "src\Xirsys.Client\Xirsys.Client.xproj", "{23FCCF84-B79F-47FA-A937-AE150AC448A6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{07624FBF-C938-49DD-A47B-1706EE5CF1F9}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Xirsys.Demo", "tests\Xirsys.Demo\Xirsys.Demo.xproj", "{4559DC50-042B-4B59-86DC-F6956FDF3070}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xirsys.Demo.NetFramework", "Xirsys.Demo.NetFramework\Xirsys.Demo.NetFramework.csproj", "{E47EA3DC-8C92-44E1-B8C8-FA12AD2537AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,20 +13,16 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{23FCCF84-B79F-47FA-A937-AE150AC448A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23FCCF84-B79F-47FA-A937-AE150AC448A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23FCCF84-B79F-47FA-A937-AE150AC448A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23FCCF84-B79F-47FA-A937-AE150AC448A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4559DC50-042B-4B59-86DC-F6956FDF3070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4559DC50-042B-4B59-86DC-F6956FDF3070}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4559DC50-042B-4B59-86DC-F6956FDF3070}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4559DC50-042B-4B59-86DC-F6956FDF3070}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DDF7897-6C2B-4516-95C3-B2A0CD34BD06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DDF7897-6C2B-4516-95C3-B2A0CD34BD06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DDF7897-6C2B-4516-95C3-B2A0CD34BD06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DDF7897-6C2B-4516-95C3-B2A0CD34BD06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E47EA3DC-8C92-44E1-B8C8-FA12AD2537AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E47EA3DC-8C92-44E1-B8C8-FA12AD2537AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E47EA3DC-8C92-44E1-B8C8-FA12AD2537AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E47EA3DC-8C92-44E1-B8C8-FA12AD2537AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{23FCCF84-B79F-47FA-A937-AE150AC448A6} = {E5E2E2E5-C9CA-4944-BBA4-974D7F7011C1}
-		{4559DC50-042B-4B59-86DC-F6956FDF3070} = {07624FBF-C938-49DD-A47B-1706EE5CF1F9}
 	EndGlobalSection
 EndGlobal
