@@ -10,14 +10,14 @@ namespace Xirsys.Client
     {
         protected const String NAMESPACE_SERVICE = "_ns";
 
-        public Task<XirsysResponseModel<NullData>> AddPathAsync(String path)
+        public Task<XirsysResponseModel<VersionResponse>> AddPathAsync(String path)
         {
-            return InternalPutAsync<Object, NullData>(GetServiceMethodPath(NAMESPACE_SERVICE, path));
+            return InternalPutAsync<Object, VersionResponse>(GetServiceMethodPath(NAMESPACE_SERVICE, path));
         }
 
-        public Task<XirsysResponseModel<NullData>> RemovePathAsync(String path)
+        public Task<XirsysResponseModel<Int32>> RemovePathAsync(String path)
         {
-            return InternalDeleteAsync<NullData>(GetServiceMethodPath(NAMESPACE_SERVICE, path));
+            return InternalDeleteAsync<Int32>(GetServiceMethodPath(NAMESPACE_SERVICE, path));
         }
 
         public Task<XirsysResponseModel<List<String>>> GetPathNodesAsync(String path, Nullable<Int32> depth = null)

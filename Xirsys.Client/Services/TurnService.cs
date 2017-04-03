@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xirsys.Client.Logging;
+using Microsoft.Extensions.Logging;
 using Xirsys.Client.Models.REST;
 using Xirsys.Client.Models.REST.Wire;
 using Xirsys.Client.Utilities;
@@ -24,7 +24,7 @@ namespace Xirsys.Client
                 ConvertModel(iceServerResponse.Data));
         }
 
-        public static List<IceServerModel> ConvertModel(TurnServersResponse turnServersResponse)
+        public List<IceServerModel> ConvertModel(TurnServersResponse turnServersResponse)
         {
             if (turnServersResponse == null)
             {
@@ -34,7 +34,7 @@ namespace Xirsys.Client
             return ConvertModel(turnServersResponse.IceServers);
         }
 
-        public static List<IceServerModel> ConvertModel(List<ServerModel> wireServerModels)
+        public List<IceServerModel> ConvertModel(List<ServerModel> wireServerModels)
         {
             if (wireServerModels == null)
             {
@@ -49,7 +49,7 @@ namespace Xirsys.Client
                 var protocolIndex = serverUrl.IndexOf(':');
                 if (protocolIndex == -1)
                 {
-                    Log.WarnFormat("Failed to identity protocol in IceServer Url: {0}", serverUrl);
+                    Log.LogWarning("Failed to identity protocol in IceServer Url: {0}", serverUrl);
                     continue;
                 }
 
@@ -89,7 +89,7 @@ namespace Xirsys.Client
                         protocolEnum = NatTraversalProtocol.Unknown;
                         transport = ServerTransportLayer.Unknown;
                         defaultPort = 3478; // might as well default to something that seems common'ish
-                        Log.WarnFormat("Unknown protocol found in Url: {0}", serverUrl);
+                        Log.LogWarning("Unknown protocol found in Url: {0}", serverUrl);
                         break;
                 }
 
@@ -108,7 +108,7 @@ namespace Xirsys.Client
                         // does queryString come before portIndex (this would be from someone not correctly escaping something)
                         if (queryStringIndex < portIndex)
                         {
-                            Log.WarnFormat("Ignoring port. Malformed Url: {0}", serverUrl);
+                            Log.LogWarning("Ignoring port. Malformed Url: {0}", serverUrl);
                             // we will give precedence to querystring
                             // and ignore portIndex
                             hostEndIndex = queryStringIndex;
@@ -126,13 +126,13 @@ namespace Xirsys.Client
                     var portStr = serverUrl.Substring(portIndex + 1, portEndIndex - portIndex - 1);
                     if (!Int32.TryParse(portStr, out port))
                     {
-                        Log.WarnFormat("Malformed Port: {0}", portStr);
+                        Log.LogWarning("Malformed Port: {0}", portStr);
                         port = -1;
                     }
                     else if (port < 1 || port > 65535)
                     {
                         // some invalid value
-                        Log.WarnFormat("Malformed Port: {0}", portStr);
+                        Log.LogWarning("Malformed Port: {0}", portStr);
                         port = -1;
                     }
                 }
@@ -155,8 +155,7 @@ namespace Xirsys.Client
                 // stun has no querystring in its uri spec
                 if (protocolEnum == NatTraversalProtocol.Turn)
                 {
-                    ServerTransportLayer queryTransport;
-                    if (ParseQueryStringForTransport(serverUrl, isSecure, out queryTransport))
+                    if (ParseQueryStringForTransport(serverUrl, isSecure, out ServerTransportLayer queryTransport))
                     {
                         transport = queryTransport;
                     }
@@ -177,7 +176,7 @@ namespace Xirsys.Client
             return iceServers;
         }
 
-        protected static Boolean ParseQueryStringForTransport(String serverUrl, bool isSecure, out ServerTransportLayer transportLayer)
+        protected Boolean ParseQueryStringForTransport(String serverUrl, bool isSecure, out ServerTransportLayer transportLayer)
         {
             transportLayer = ServerTransportLayer.Unknown;
 
@@ -203,7 +202,7 @@ namespace Xirsys.Client
                         return true;
                     default:
                         // do nothing
-                        Log.WarnFormat("Unknown Transport specified in queryString: {0}", transportKvp.Value);
+                        Log.LogWarning("Unknown Transport specified in queryString: {0}", transportKvp.Value);
                         break;
                 }
             }

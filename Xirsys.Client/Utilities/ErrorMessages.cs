@@ -26,6 +26,7 @@ namespace Xirsys.Client.Utilities
         public const String ApplicationExists = "application_exists";
         public const String RoomExists = "room_exists";
 
+        public const String NoNamespace = "no_namespace";
         public const String NoDomain = "no_domain";
         public const String NoApplication = "no_application";
         public const String NoRoom = "no_room";
@@ -38,6 +39,9 @@ namespace Xirsys.Client.Utilities
         public const String BadLayerPrefix = "bad_layer_prefix";
 
         public const String ValueMissing = "value_missing";
+
+        public const String VersionMissing = "_ver_missing";
+        public const String VersionConflict = "version_conflict";
 
 
         // our own errors

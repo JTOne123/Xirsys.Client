@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xirsys.Client.Models.REST;
 
 namespace Xirsys.Client.Utilities
@@ -10,6 +12,62 @@ namespace Xirsys.Client.Utilities
         public static bool IsOk<TData>(this XirsysResponseModel<TData> response)
         {
             return String.Equals(response.Status, SystemMessages.OK_STATUS, StringComparison.CurrentCultureIgnoreCase);
+        }
+
+
+        private static readonly Type[] SIMPLE_TYPES = new Type[]
+             {
+                typeof(Boolean),
+
+                typeof(SByte),
+                typeof(Byte),
+                typeof(Int16),
+                typeof(UInt16),
+                typeof(Int32),
+                typeof(UInt32),
+                typeof(Int64),
+                typeof(UInt64),
+
+                typeof(Single),
+                typeof(Double),
+                typeof(Decimal),
+
+                typeof(Char),
+                typeof(String),
+
+                typeof(DateTime),
+             };
+
+        public static bool IsSimpleType(this Type type)
+        {
+            if (type.IsArray ||
+                SIMPLE_TYPES.Contains(type))
+            {
+                return true;
+            }
+
+            var typeInfo = type.GetTypeInfo();
+
+            if (typeInfo.IsPrimitive ||
+                typeInfo.IsEnum)
+            {
+                return true;
+            }
+
+            if (typeInfo.IsGenericType)
+            {
+                var genericTypeInfo = typeInfo.GetGenericTypeDefinition();
+                if (genericTypeInfo == typeof(Nullable<>))
+                {
+                    return true;
+                }
+                if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(typeInfo))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
 
