@@ -5,26 +5,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using AIMLbot;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NLog.Extensions.Logging;
 using WebSocket4Net;
 using Xirsys.Client;
 using Xirsys.Client.Models.WebSocket;
 using Xirsys.Client.Models.WebSocket.Payloads;
 using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
-using Xirsys.Demo.Extensions;
-using Xirsys.Demo.Logging;
+using Xirsys.Demo.NetFramework.Extensions;
 
-namespace Xirsys.Demo
+namespace Xirsys.Demo.NetFramework
 {
     class Program
     {
-        private static readonly ILog Log = LogProvider.For<Program>();
-        private static readonly IFormatProvider FormatProvider = JsonFormatProvider.Current;
+        private static readonly ILoggerFactory LoggerFactory;
+        private static readonly ILogger Log;
+        private static readonly IFormatProvider FormatProvider;
 
         private static readonly TimeSpan RECONNECT_DELAY = TimeSpan.FromSeconds(3);
 
         private static IConfiguration Configuration;
+
+        static Program()
+        {
+            LoggerFactory = new LoggerFactory();
+            LoggerFactory.AddNLog();
+            Log = LoggerFactory.CreateLogger<Program>();
+            FormatProvider = JsonFormatProvider.Current;
+        }
 
         static void Main(String[] args)
         {
@@ -42,11 +52,11 @@ namespace Xirsys.Demo
             }
             catch (Exception ex)
             {
-                Log.ErrorException("Exception", ex);
-             }
+                Log.LogError(0, ex, "Exception");
+            }
             finally
             {
-                Log.Info("Done");
+                Log.LogInformation("Done");
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
             }
@@ -71,8 +81,10 @@ namespace Xirsys.Demo
 
             // setup our initial xirsysclient
             var xirsysClient = new XirsysApiClient(
+                (XirsysRegion)Enum.Parse(typeof(XirsysRegion), Configuration["xirsysRegion"]),
                 Configuration["xirsysIdent"],
-                Configuration["xirsysSecret"]);
+                Configuration["xirsysSecret"], 
+                LoggerFactory.CreateLogger<XirsysApiClient>());
 
             // get url for signal server
             var signalServerUrl = await xirsysClient.GetBestSignalServerAsync();
@@ -85,14 +97,14 @@ namespace Xirsys.Demo
             String botName = "Kacey";
 
             // acquire token for bot
-            var acquireTokenResponse = await xirsysClient.GetTokenAsync(appPath, botName, 0);
+            var acquireTokenResponse = await xirsysClient.CreateTokenAsync(appPath, botName, 10000);
             if (!acquireTokenResponse.IsOk())
             {
                 return;
             }
 
             var appSocketUri = signalServerUrl.Data.TrimEnd('/') + $"/v2/{acquireTokenResponse.Data}";
-            Log.Info(appSocketUri);
+            Log.LogInformation(appSocketUri);
 
             // holds connection state, which is used via WebSocket events
             var connectionState = new ConnectionState()
@@ -113,7 +125,7 @@ namespace Xirsys.Demo
                 line = Console.ReadLine();
             }
 
-            Log.Info("Shutting down WebSocket");
+            Log.LogInformation("Shutting down WebSocket");
             connectionState.StopReconnect = true;
             connectionState.CurrentWebSocket.Close();
         }
@@ -132,7 +144,7 @@ namespace Xirsys.Demo
 
             ws.Opened += (sender, e) =>
                 {
-                    Log.DebugFormat("WebSocket OnOpen.");
+                    Log.LogDebug("WebSocket OnOpen.");
 
                     // send off bot's welcoming message to chat
                     var messageObj = new BaseWireModel(MessageTypeCode.User, "Hi chat",
@@ -142,26 +154,26 @@ namespace Xirsys.Demo
 
             ws.Closed += (sender, e) =>
                 {
-                    Log.DebugFormat("WebSocket OnClose.");
+                    Log.LogDebug("WebSocket OnClose.");
                     if (state.StopReconnect)
                     {
-                        Log.Trace("Not Reconnecting WebSocket");
+                        Log.LogTrace("Not Reconnecting WebSocket");
                         return;
                     }
 
                     // else reconnect
-                    Log.Trace("Reconnecting WebSocket");
+                    Log.LogTrace("Reconnecting WebSocket");
                     StartWebSocket(state, RECONNECT_DELAY);
                 };
 
             ws.Error += (sender, e) =>
                 {
-                    Log.ErrorException("WebSocket OnError.", e.Exception);
+                    Log.LogError(0, e.Exception, "WebSocket OnError.");
                 };
 
             ws.MessageReceived += (sender, e) =>
                 {
-                    Log.DebugFormat("WebSocket OnMessage. Message: {0}", e.Message);
+                    Log.LogDebug("WebSocket OnMessage. Message: {0}", e.Message);
 
                     // handle incoming messages
                     var botName = state.Bot.BotName();
@@ -170,13 +182,13 @@ namespace Xirsys.Demo
                     if (message.TypeCode != MessageTypeCode.User)
                     {
                         // donno what these are yet
-                        Log.TraceFormat("Unknown MessageTypeCode: {0}", message.TypeCode);
+                        Log.LogTrace("Unknown MessageTypeCode: {0}", message.TypeCode);
                         return;
                     }
 
                     if (message.Meta == null)
                     {
-                        Log.TraceFormat("Meta IsNull: {0}", message.Meta == null);
+                        Log.LogTrace("Meta IsNull: {0}", message.Meta == null);
                         return;
                     }
 
@@ -196,41 +208,44 @@ namespace Xirsys.Demo
                             HandleMessage(message, state);
                             break;
                         case OperationType.Session:
-                            Log.TraceFormat("Unhandled OperationType: {0}", message.Meta.OperationType);
+                            Log.LogTrace("Unhandled OperationType: {0}", message.Meta.OperationType);
                             break;
                         case OperationType.Unknown:
                         default:
-                            Log.TraceFormat("Unknown OperationType: {0}", message.Meta.OperationType);
+                            Log.LogTrace("Unknown OperationType: {0}", message.Meta.OperationType);
                             break;
                     }
                 };
             
             ws.Open();
-            Log.Trace("WebSocket Opened");
+            Log.LogTrace("WebSocket Opened");
         }
 
         private static void SendMessage(WebSocket ws, BaseWireModel model)
         {
             var messageJson = JsonConvert.SerializeObject(model);
 
-            Log.TraceFormat("Sending Message: {0}", messageJson);
+            Log.LogTrace("Sending Message: {0}", messageJson);
             ws.Send(messageJson);
         }
 
         private static void HandlePeersMessage(BaseWireModel data, ConnectionState state)
         {
-            Log.Trace($"{nameof(HandlePeersMessage)}");
+            Log.LogTrace($"{nameof(HandlePeersMessage)}");
             var userListPayload = data.AsPayload<UserListPayload>();
             // remove duplicates...cause xirsys is terrible
             userListPayload.Users = userListPayload.Users.Distinct().ToList();
-            Log.Trace(() => "Sent Users: " + String.Join(", ", userListPayload.Users));
+            if (Log.IsEnabled(LogLevel.Trace))
+            {
+                Log.LogTrace("Sent Users: " + String.Join(", ", userListPayload.Users));
+            }
 
             // lets test if all the same users are on since we have reconnected, remove those from botlist
             // that are not
             var removeUsers = state.BotUsers.Keys.Except(userListPayload.Users).ToList();
             foreach (var removeUser in removeUsers)
             {
-                Log.TraceFormat("Removing UserName ({0}) from BotUsers list", removeUser);
+                Log.LogTrace("Removing UserName ({0}) from BotUsers list", removeUser);
                 User ignore;
                 state.BotUsers.TryRemove(removeUser, out ignore);
             }
@@ -247,7 +262,7 @@ namespace Xirsys.Demo
                 var newBotUser = new User(newUser, state.Bot);
                 if (state.BotUsers.TryAdd(newUser, newBotUser))
                 {
-                    Log.TraceFormat("Added UserName ({0}) to BotUsers list", newUser);
+                    Log.LogTrace("Added UserName ({0}) to BotUsers list", newUser);
                 }
             }
         }
@@ -255,7 +270,7 @@ namespace Xirsys.Demo
         // new user connected to websocket
         private static void HandlePeerConnectedMessage(BaseWireModel data, ConnectionState state)
         {
-            Log.Trace($"{nameof(HandlePeerConnectedMessage)}");
+            Log.LogTrace($"{nameof(HandlePeerConnectedMessage)}");
             if (data.Meta.From == null)
             {
                 return;
@@ -268,7 +283,7 @@ namespace Xirsys.Demo
             if (!String.Equals(connectedUserName, botName) &&
                 state.BotUsers.TryAdd(connectedUserName, newBotUser))
             {
-                Log.TraceFormat("Added UserName ({0}) to BotUsers list", connectedUserName);
+                Log.LogTrace("Added UserName ({0}) to BotUsers list", connectedUserName);
 
                 var messageObj = new BaseWireModel(MessageTypeCode.User, $"Hello {connectedUserName}",
                     new Meta(botName, OperationType.Message));
@@ -279,11 +294,11 @@ namespace Xirsys.Demo
         // user left websocket
         private static void HandlePeerRemovedMessage(BaseWireModel data, ConnectionState state)
         {
-            Log.Trace($"{nameof(HandlePeerRemovedMessage)}");
+            Log.LogTrace($"{nameof(HandlePeerRemovedMessage)}");
             if (data.Meta.From != null)
             {
                 String disconnectedUserName = data.Meta.From;
-                Log.TraceFormat("Removing UserName ({0}) from BotUsers list", disconnectedUserName);
+                Log.LogTrace("Removing UserName ({0}) from BotUsers list", disconnectedUserName);
                 User ignore;
                 state.BotUsers.TryRemove(disconnectedUserName, out ignore);
             }
@@ -291,10 +306,10 @@ namespace Xirsys.Demo
 
         private static void HandleMessage(BaseWireModel data, ConnectionState state)
         {
-            Log.Trace($"{nameof(HandleMessage)}");
+            Log.LogTrace($"{nameof(HandleMessage)}");
             if (data.Meta.From == null)
             {
-                Log.Trace("From property null");
+                Log.LogTrace("From property null");
                 return;
             }
 
@@ -302,14 +317,14 @@ namespace Xirsys.Demo
             if (!state.BotUsers.TryGetValue(data.Meta.From, out user))
             {
                 // users already disconnected
-                Log.TraceFormat("UserName ({0}) not found in BotUsers list", data.Meta.From);
+                Log.LogTrace("UserName ({0}) not found in BotUsers list", data.Meta.From);
                 return;
             }
 
             var payloadMessage = data.Payload as String;
             if (String.IsNullOrWhiteSpace(payloadMessage))
             {
-                Log.Trace("Empty message received");
+                Log.LogTrace("Empty message received");
                 // empty message
                 return;
             }

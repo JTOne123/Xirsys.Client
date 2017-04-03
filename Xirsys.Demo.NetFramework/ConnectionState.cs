@@ -4,7 +4,7 @@ using System.Threading;
 using AIMLbot;
 using WebSocket4Net;
 
-namespace Xirsys.Demo
+namespace Xirsys.Demo.NetFramework
 {
     public class ConnectionState
     {

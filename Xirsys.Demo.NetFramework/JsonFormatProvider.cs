@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Xirsys.Demo
+namespace Xirsys.Demo.NetFramework
 {
     public class JsonFormatProvider : IFormatProvider, ICustomFormatter
     {
