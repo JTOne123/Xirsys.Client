@@ -90,7 +90,7 @@ namespace Xirsys.Client.Utilities
 
 
 
-        public static String ToHttpString(this List<KeyValuePair<String, String>> collection)
+        public static String ToHttpString(this IEnumerable<KeyValuePair<String, String>> collection)
         {
             if (collection == null)
             {
@@ -98,7 +98,7 @@ namespace Xirsys.Client.Utilities
             }
 
             // simplified version of what ToString in HttpValueCollection does
-            var items = new List<String>(collection.Count);
+            var items = new List<String>(collection.Count());
             foreach (KeyValuePair<String, String> kvp in collection
                 // so that duplicate keys are at least serialized into the querystring together
                 .OrderBy(x => x.Key))

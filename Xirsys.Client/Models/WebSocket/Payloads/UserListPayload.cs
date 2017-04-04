@@ -12,7 +12,7 @@ namespace Xirsys.Client.Models.WebSocket.Payloads
             this.Users = new List<String>();
         }
 
-        public UserListPayload(List<String>  users)
+        public UserListPayload(List<String> users)
         {
             this.Users = users ?? new List<String>();
         }

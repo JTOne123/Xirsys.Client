@@ -55,7 +55,7 @@ namespace Xirsys.Client.Serialization.Converters
                 case DELETE_VERB:
                     return ApiHttpVerb.Delete;
                 default:
-                    return StatMeasurement.Unknown;
+                    return ApiHttpVerb.Unknown;
             }
         }
 

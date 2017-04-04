@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Xirsys.Client.Models.REST
+namespace Xirsys.Client.Models.REST.Wire
 {
     [DataContract]
     public class VersionResponse
