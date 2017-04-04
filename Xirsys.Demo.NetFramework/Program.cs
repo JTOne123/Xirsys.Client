@@ -178,7 +178,7 @@ namespace Xirsys.Demo.NetFramework
                     // handle incoming messages
                     var botName = state.Bot.BotName();
 
-                    var message = JsonConvert.DeserializeObject<BaseWireModel>(e.Message);
+                    var message = JsonNetExtensions.DeserializeObject<BaseWireModel>(e.Message);
                     if (message.TypeCode != MessageTypeCode.User)
                     {
                         // donno what these are yet
@@ -223,7 +223,7 @@ namespace Xirsys.Demo.NetFramework
 
         private static void SendMessage(WebSocket ws, BaseWireModel model)
         {
-            var messageJson = JsonConvert.SerializeObject(model);
+            var messageJson = JsonNetExtensions.SerializeObject(model);
 
             Log.LogTrace("Sending Message: {0}", messageJson);
             ws.Send(messageJson);

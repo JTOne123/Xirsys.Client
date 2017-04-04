@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Xirsys.Client.Serialization;
 
 namespace Xirsys.Demo.NetFramework
 {
@@ -14,7 +15,7 @@ namespace Xirsys.Demo.NetFramework
 
         public String Format(String format, Object arg, IFormatProvider formatProvider)
         {
-            return String.Format("{0}", JsonConvert.SerializeObject(arg));
+            return String.Format("{0}", JsonNetExtensions.SerializeObject(arg));
         }
     }
 }
