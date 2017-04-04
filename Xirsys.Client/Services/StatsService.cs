@@ -151,7 +151,7 @@ namespace Xirsys.Client
             }
 
             // else allow normal JSON.NET deserialization
-            return JsonConvert.DeserializeObject<XirsysResponseModel<TResponse>>(responseStr);
+            return JsonNetExtensions.DeserializeObject<XirsysResponseModel<TResponse>>(responseStr);
         }
 
         private static void ValidateMeasurement(StatMeasurement measurement)

@@ -35,7 +35,7 @@ namespace Xirsys.Client
                         var valueToken = intermediateObj[KeyValueModel<Object>.VALUE_PROP];
                         if (valueToken == null || valueToken.Type != JTokenType.Object)
                         {
-                            Log.LogWarning("Failed to locate {0} property in Content model. Cannot insert {1} property.", KeyValueModel<Object>.VALUE_PROP, VersionResponse.VERSION_PROP);
+                            Logger.LogWarning("Failed to locate {0} property in Content model. Cannot insert {1} property.", KeyValueModel<Object>.VALUE_PROP, VersionResponse.VERSION_PROP);
                         }
                         else
                         {
@@ -198,7 +198,7 @@ namespace Xirsys.Client
                 valueToken.Type != JTokenType.Object)
             {
                 // value should never be null or NOT an object, if it is the service layer has some bugs
-                Log.LogWarning("Invalid Xirsys Api Response. Value property is null or not an object. Response: {0}", responseStr);
+                Logger.LogWarning("Invalid Xirsys Api Response. Value property is null or not an object. Response: {0}", responseStr);
                 return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null);
             }
 
@@ -206,7 +206,7 @@ namespace Xirsys.Client
             if (valueData == null)
             {
                 // likewise if we can't serialize back to data type, there is a problem
-                Log.LogWarning("Invalid Xirsys Api Response. Value property did not deserialize to {0}. Response: {1}", typeof(TSerializedData).Name, responseStr);
+                Logger.LogWarning("Invalid Xirsys Api Response. Value property did not deserialize to {0}. Response: {1}", typeof(TSerializedData).Name, responseStr);
                 return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null);
             }
 
@@ -219,14 +219,14 @@ namespace Xirsys.Client
                 if (String.IsNullOrEmpty(versionValue))
                 {
                     // sort of a problem, but we can continue
-                    Log.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was empty. Response: {{1}}", responseStr);
+                    Logger.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was empty. Response: {{1}}", responseStr);
                     versionValue = String.Empty;
                 }
             }
             else
             {
                 // sort of a problem, but we can continue
-                Log.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was not present or invalid type. Response: {{1}}", responseStr);
+                Logger.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was not present or invalid type. Response: {{1}}", responseStr);
                 versionValue = String.Empty;
             }
 

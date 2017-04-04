@@ -24,7 +24,7 @@ namespace Xirsys.Client
                 qsParameters.Add("expire", expire.Value.ToString());
             }
             var methodPath = GetServiceMethodPath(TOKEN_SERVICE, path) + "?" + qsParameters.ToHttpString();
-            return InternalPutAsync<NullData, String>(methodPath);
+            return InternalPutAsync<Object, String>(methodPath);
         }
     }
 }

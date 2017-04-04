@@ -15,7 +15,7 @@ namespace Xirsys.Client
 
         public async Task<XirsysResponseModel<List<IceServerModel>>> ListTurnServersAsync(String path)
         {
-            var iceServerResponse = await InternalPutAsync<NullData, TurnServersResponse>(GetServiceMethodPath(TURN_SERVICE, path))
+            var iceServerResponse = await InternalPutAsync<Object, TurnServersResponse>(GetServiceMethodPath(TURN_SERVICE, path))
                 .ConfigureAwait(false);
 
             return new XirsysResponseModel<List<IceServerModel>>(
@@ -49,7 +49,7 @@ namespace Xirsys.Client
                 var protocolIndex = serverUrl.IndexOf(':');
                 if (protocolIndex == -1)
                 {
-                    Log.LogWarning("Failed to identity protocol in IceServer Url: {0}", serverUrl);
+                    Logger.LogWarning("Failed to identity protocol in IceServer Url: {0}", serverUrl);
                     continue;
                 }
 
@@ -89,7 +89,7 @@ namespace Xirsys.Client
                         protocolEnum = NatTraversalProtocol.Unknown;
                         transport = ServerTransportLayer.Unknown;
                         defaultPort = 3478; // might as well default to something that seems common'ish
-                        Log.LogWarning("Unknown protocol found in Url: {0}", serverUrl);
+                        Logger.LogWarning("Unknown protocol found in Url: {0}", serverUrl);
                         break;
                 }
 
@@ -108,7 +108,7 @@ namespace Xirsys.Client
                         // does queryString come before portIndex (this would be from someone not correctly escaping something)
                         if (queryStringIndex < portIndex)
                         {
-                            Log.LogWarning("Ignoring port. Malformed Url: {0}", serverUrl);
+                            Logger.LogWarning("Ignoring port. Malformed Url: {0}", serverUrl);
                             // we will give precedence to querystring
                             // and ignore portIndex
                             hostEndIndex = queryStringIndex;
@@ -126,13 +126,13 @@ namespace Xirsys.Client
                     var portStr = serverUrl.Substring(portIndex + 1, portEndIndex - portIndex - 1);
                     if (!Int32.TryParse(portStr, out port))
                     {
-                        Log.LogWarning("Malformed Port: {0}", portStr);
+                        Logger.LogWarning("Malformed Port: {0}", portStr);
                         port = -1;
                     }
                     else if (port < 1 || port > 65535)
                     {
                         // some invalid value
-                        Log.LogWarning("Malformed Port: {0}", portStr);
+                        Logger.LogWarning("Malformed Port: {0}", portStr);
                         port = -1;
                     }
                 }
@@ -202,7 +202,7 @@ namespace Xirsys.Client
                         return true;
                     default:
                         // do nothing
-                        Log.LogWarning("Unknown Transport specified in queryString: {0}", transportKvp.Value);
+                        Logger.LogWarning("Unknown Transport specified in queryString: {0}", transportKvp.Value);
                         break;
                 }
             }

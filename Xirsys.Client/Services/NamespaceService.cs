@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xirsys.Client.Models.REST;
+using Xirsys.Client.Models.REST.Wire;
 using Xirsys.Client.Utilities;
 
 namespace Xirsys.Client

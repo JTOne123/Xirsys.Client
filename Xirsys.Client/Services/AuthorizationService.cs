@@ -68,7 +68,7 @@ namespace Xirsys.Client
                         var valueToken = intermediateObj[KeyValueModel<Object>.VALUE_PROP];
                         if (valueToken == null || valueToken.Type != JTokenType.Object)
                         {
-                            Log.LogWarning("Failed to locate {0} property in Content model. Cannot insert {1} property.", KeyValueModel<Object>.VALUE_PROP, VersionResponse.VERSION_PROP);
+                            Logger.LogWarning("Failed to locate {0} property in Content model. Cannot insert {1} property.", KeyValueModel<Object>.VALUE_PROP, VersionResponse.VERSION_PROP);
                         }
                         else
                         {

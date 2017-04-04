@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xirsys.Client.Models.REST;
+using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
 
 namespace Xirsys.Client
@@ -34,27 +33,25 @@ namespace Xirsys.Client
         public const String STATUS_PROP = "s";
         public const String VALUE_PROP = "v";
 
-        private readonly ILogger Log;
-
-        protected readonly JsonSerializerSettings m_JsonSerializerSettings;
+        private readonly ILogger Logger;
 
         protected HttpClient m_HttpClient;
 
         private bool m_IsDisposed = false;
 
-        public XirsysApiClient(String apiIdent, String apiSecret, ILogger<XirsysApiClient> logger)
+        public XirsysApiClient(String apiIdent, String apiSecret, ILogger logger)
             : this(RegionGateways.First().Value, apiIdent, apiSecret, logger)
         {
         }
 
-        public XirsysApiClient(XirsysRegion gatewayRegion, String apiIdent, String apiSecret, ILogger<XirsysApiClient> logger)
+        public XirsysApiClient(XirsysRegion gatewayRegion, String apiIdent, String apiSecret, ILogger logger)
             : this(RegionGateways[gatewayRegion], apiIdent, apiSecret, logger)
         {
         }
 
-        public XirsysApiClient(String apiBaseUrl, String apiIdent, String apiSecret, ILogger<XirsysApiClient> logger)
+        public XirsysApiClient(String apiBaseUrl, String apiIdent, String apiSecret, ILogger logger)
         {
-            this.Log = logger;
+            this.Logger = logger;
 
             if (apiBaseUrl.EndsWith("/"))
             {
@@ -64,12 +61,6 @@ namespace Xirsys.Client
             this.BaseApiUrl = apiBaseUrl;
             this.Ident = apiIdent;
             this.Secret = apiSecret;
-
-            // don't serialize null values
-            m_JsonSerializerSettings = new JsonSerializerSettings()
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                };
         }
 
         public void Dispose()
@@ -163,7 +154,7 @@ namespace Xirsys.Client
             {
                 // no status prop, should mean this is an error
                 // this is a problem on xirsys side that should be reported, it is returning invalid json
-                Log.LogWarning("Invalid Xirsys Api Response. Status property is null or not a string. Response: {0}", responseStr);
+                Logger.LogWarning("Invalid Xirsys Api Response. Status property is null or not a string. Response: {0}", responseStr);
 
                 // check if value prop is there for error message, pretty much we have an error response though
                 return new XirsysResponseModel<TResponseData>(SystemMessages.ERROR_STATUS,
@@ -181,7 +172,7 @@ namespace Xirsys.Client
                 else
                 {
                     // default deserialization
-                    return JsonConvert.DeserializeObject<XirsysResponseModel<TResponseData>>(responseStr);
+                    return JsonNetExtensions.DeserializeObject<XirsysResponseModel<TResponseData>>(responseStr);
                 }
             }
             else if (String.Equals(statusStr, SystemMessages.ERROR_STATUS, StringComparison.CurrentCultureIgnoreCase))
@@ -201,7 +192,7 @@ namespace Xirsys.Client
             else
             {
                 // in case we need to handle other types of status responses(?) individually
-                Log.LogWarning("Unknown Xirsys Api Status. Response: {0}", responseStr);
+                Logger.LogWarning("Unknown Xirsys Api Status. Response: {0}", responseStr);
                 if (unknownParseResponse != null)
                 {
                     return unknownParseResponse(responseStr, responseJObject);
@@ -228,7 +219,7 @@ namespace Xirsys.Client
             else
             {
                 // to my knowledge should never be null or NOT a string when there is an error
-                Log.LogWarning("Invalid Xirsys Api Error Response. Value field is null or not a string. Response: {0}", originalResponseStr);
+                Logger.LogWarning("Invalid Xirsys Api Error Response. Value field is null or not a string. Response: {0}", originalResponseStr);
                 valueStr = defaultValueStr;
             }
 
@@ -268,16 +259,16 @@ namespace Xirsys.Client
                     {
                         var errorResponse = await response.Content.ReadAsStringAsync()
                             .ConfigureAwait(false);
-                        Log.LogError("RequestUri: {0} HttpVerb: {1} StatusCode: {2} ReasonPhrase: {3} HttpContent: {4} HttpResponse: {5}",
+                        Logger.LogError("RequestUri: {0} HttpVerb: {1} StatusCode: {2} ReasonPhrase: {3} HttpContent: {4} HttpResponse: {5}",
                             requestUri, requestVerb, response.StatusCode, response.ReasonPhrase, httpContentStr, errorResponse);
                         return deserializeResponse(errorResponse);
                     }
 
                     var strResponse = await response.Content.ReadAsStringAsync()
                         .ConfigureAwait(false);
-                    if (Log.IsEnabled(LogLevel.Trace))
+                    if (Logger.IsEnabled(LogLevel.Trace))
                     {
-                        Log.LogTrace("RequestUri: {0} HttpVerb: {1} HttpContent: {2} HttpResponse: {3}",
+                        Logger.LogTrace("RequestUri: {0} HttpVerb: {1} HttpContent: {2} HttpResponse: {3}",
                             requestUri, requestVerb, httpContentStr, strResponse);
                     }
 
@@ -285,14 +276,14 @@ namespace Xirsys.Client
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError(0, ex, "Error parsing response");
+                    Logger.LogError(0, ex, "Error parsing response");
                     return new XirsysResponseModel<TResponseData>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, default(TResponseData));
                 }
             }
         }
 
         protected async Task<XirsysResponseModel<TResponseData>> InternalGetAsync<TResponseData>(String servicePath,
-            List<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
+            IEnumerable<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
         {
             if (!servicePath.StartsWith("/"))
             {
@@ -323,7 +314,7 @@ namespace Xirsys.Client
             }
             if (serializeContentData == null)
             {
-                serializeContentData = (contentData) => JsonConvert.SerializeObject(contentData, Formatting.None, m_JsonSerializerSettings);
+                serializeContentData = (contentData) => JsonNetExtensions.SerializeObject(contentData);
             }
 
             using (var httpReq = new HttpRequestMessage(HttpMethod.Post, BaseApiUrl + servicePath))
@@ -346,7 +337,7 @@ namespace Xirsys.Client
             }
             if (serializeContentData == null)
             {
-                serializeContentData = (contentData) => JsonConvert.SerializeObject(contentData, Formatting.None, m_JsonSerializerSettings);
+                serializeContentData = (contentData) => JsonNetExtensions.SerializeObject(contentData);
             }
 
             using (var httpReq = new HttpRequestMessage(HttpMethod.Put, BaseApiUrl + servicePath))
@@ -359,7 +350,7 @@ namespace Xirsys.Client
         }
 
         protected async Task<XirsysResponseModel<TResponseData>> InternalDeleteAsync<TResponseData>(String servicePath,
-            List<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
+            IEnumerable<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
         {
             if (!servicePath.StartsWith("/"))
             {
