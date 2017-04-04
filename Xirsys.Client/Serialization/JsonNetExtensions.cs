@@ -75,7 +75,7 @@ namespace Xirsys.Client.Serialization
                 return defaultValue;
             }
 
-            return payloadJObject.ToObject<TPayload>(s_JsonSerializerSettings);
+            return payloadJObject.ToObject<TPayload>(s_JsonSerializer);
         }
 
         public static SessionPayloadType GetSessionPayloadType(this BaseWireModel wireModel)
