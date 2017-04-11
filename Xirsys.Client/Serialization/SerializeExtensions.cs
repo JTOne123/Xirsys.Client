@@ -74,6 +74,20 @@ namespace Xirsys.Client.Serialization
             }
         }
 
+        public static String ToStringValue(this DiscoveryAction action)
+        {
+            switch (action)
+            {
+                case DiscoveryAction.Layers:
+                    return DiscoveryActionConverter.LAYERS_ACTION;
+                case DiscoveryAction.Paths:
+                    return DiscoveryActionConverter.PATHS_ACTION;
+                case DiscoveryAction.Unknown:
+                default:
+                    return null;
+            }
+        }
+
         internal static String GetDateTimeFormat(this DatePrecision precision, bool forceExact)
         {
             switch (precision)
