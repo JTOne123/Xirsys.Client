@@ -14,9 +14,9 @@ using Xirsys.Client.Models.WebSocket;
 using Xirsys.Client.Models.WebSocket.Payloads;
 using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
-using Xirsys.Demo.NetFramework.Extensions;
+using Xirsys.Demo.Extensions;
 
-namespace Xirsys.Demo.NetFramework
+namespace Xirsys.Demo
 {
     class Program
     {
@@ -120,7 +120,7 @@ namespace Xirsys.Demo.NetFramework
 
             // console input to shutdown app
             var line = Console.ReadLine();
-            while (!String.Equals(line, "exit", StringComparison.InvariantCultureIgnoreCase))
+            while (!String.Equals(line, "exit", StringComparison.OrdinalIgnoreCase))
             {
                 line = Console.ReadLine();
             }

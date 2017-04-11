@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Xirsys.Client.Serialization;
 
-namespace Xirsys.Demo.NetFramework
+namespace Xirsys.Demo
 {
     public class JsonFormatProvider : IFormatProvider, ICustomFormatter
     {
