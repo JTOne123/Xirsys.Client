@@ -75,7 +75,7 @@ namespace Xirsys.Demo
 
             // construct and setup bot
             var kaceyBot = new Bot();
-            kaceyBot.loadSettings(@"botconfig\Settings.xml");
+            kaceyBot.loadSettings($"botconfig{System.IO.Path.DirectorySeparatorChar}Settings.xml");
             kaceyBot.loadAIMLFromFiles();
             kaceyBot.isAcceptingUserInput = true;
 
