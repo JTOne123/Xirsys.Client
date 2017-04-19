@@ -11,17 +11,12 @@
   <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs" />
     <None Remove="App.config" />
+    <None Remove="App.*.config" />
     <None Remove="packages.config" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="config.json.user">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+  <Content Include="config.json" CopyToOutputDirectory="PreserveNewest" />
+  <Content Include="config.json*" CopyToOutputDirectory="PreserveNewest" DependentUpon="config.json" />
 
   <ItemGroup>
     <PackageReference Include="AIMLbot" Version="2.5.1" />

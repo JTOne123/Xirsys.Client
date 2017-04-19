@@ -42,8 +42,8 @@ namespace Xirsys.Demo
             {
                 var configurationBuilder = new ConfigurationBuilder();
 
-                configurationBuilder.AddJsonFile("config.json");
-                configurationBuilder.AddJsonFile("config.json.user", true);
+                configurationBuilder.AddJsonFile("config.json", optional: false, reloadOnChange: true);
+                configurationBuilder.AddJsonFile("config.json.user", optional: true, reloadOnChange: true);
 
                 Configuration = configurationBuilder.Build();
                 
