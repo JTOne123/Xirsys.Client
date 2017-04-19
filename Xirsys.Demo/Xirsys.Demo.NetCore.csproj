@@ -15,8 +15,10 @@
     <None Remove="packages.config" />
   </ItemGroup>
 
-  <Content Include="config.json" CopyToOutputDirectory="PreserveNewest" />
-  <Content Include="config.json*" CopyToOutputDirectory="PreserveNewest" DependentUpon="config.json" />
+  <ItemGroup>
+    <Content Include="config.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="config.json*" CopyToOutputDirectory="PreserveNewest" DependentUpon="config.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AIMLbot" Version="2.5.1" />
