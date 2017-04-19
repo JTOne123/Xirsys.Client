@@ -13,7 +13,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
     <OutputPath>bin\$(Configuration)\netframework\</OutputPath>
-	<BaseIntermediateOutputPath>obj\$(Configuration)\netframework\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\$(Configuration)\netframework\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -423,7 +423,7 @@
     <None Include="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="config.json.user">
+    <None Include="config.json.user" DependentUpon="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -432,15 +432,6 @@
       <Project>{4ddf7897-6c2b-4516-95c3-b2a0cd34bd06}</Project>
       <Name>Xirsys.Client</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ConfigurationFiles\DefaultPredicates.xml" />
-    <None Include="ConfigurationFiles\GenderSubstitutions.xml" />
-    <None Include="ConfigurationFiles\Person2Substitutions.xml" />
-    <None Include="ConfigurationFiles\PersonSubstitutions.xml" />
-    <None Include="ConfigurationFiles\Settings.xml" />
-    <None Include="ConfigurationFiles\Splitters.xml" />
-    <None Include="ConfigurationFiles\Substitutions.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
