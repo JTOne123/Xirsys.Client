@@ -40,6 +40,16 @@ namespace Xirsys.Client.Models.REST
         {
         }
 
+        public BaseSubAccountModel(String email)
+            : this(email, null, null, null, null)
+        {
+        }
+
+        public BaseSubAccountModel(String email, String secret)
+            : this(email, secret, null, null, null)
+        {
+        }
+
         public BaseSubAccountModel(String email, String secret, String firstName, String lastName, String company)
         {
             this.Email = email;
@@ -58,6 +68,32 @@ namespace Xirsys.Client.Models.REST
             this.Company = other.Company;
 
             this.Secret = other.Secret;
+        }
+
+        public virtual void MergeUpdateModel(UpdateSubAccountModel updateSubAccount)
+        {
+            if (updateSubAccount.Email != null)
+            {
+                this.Email = updateSubAccount.Email;
+            }
+
+            if (updateSubAccount.FirstName != null)
+            {
+                this.FirstName = updateSubAccount.FirstName;
+            }
+            if (updateSubAccount.LastName != null)
+            {
+                this.LastName = updateSubAccount.LastName;
+            }
+            if (updateSubAccount.Company != null)
+            {
+                this.Company = updateSubAccount.Company;
+            }
+
+            if (updateSubAccount.Secret != null)
+            {
+                this.Secret = updateSubAccount.Secret;
+            }
         }
 
 

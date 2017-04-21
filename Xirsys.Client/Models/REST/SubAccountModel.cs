@@ -28,6 +28,18 @@ namespace Xirsys.Client.Models.REST
             this.Created = other.Created;
         }
 
+        public override void MergeUpdateModel(UpdateSubAccountModel updateSubAccount)
+        {
+            base.MergeUpdateModel(updateSubAccount);
+            if (updateSubAccount.Active.HasValue)
+            {
+                this.Active = updateSubAccount.Active.Value;
+            }
+            if (updateSubAccount.Created.HasValue)
+            {
+                this.Created = updateSubAccount.Created.Value;
+            }
+        }
 
 
         protected Boolean Equals(SubAccountModel other)

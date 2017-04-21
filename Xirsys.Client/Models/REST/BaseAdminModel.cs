@@ -6,6 +6,7 @@ namespace Xirsys.Client.Models.REST
     [DataContract]
     public class BaseAdminModel
     {
+        public const int MIN_REQ_PASSWORD_LENGTH = 4;
         public const String DEFAULT_ROLE = "admin";
 
         [DataMember(Name = "email")]
@@ -27,6 +28,11 @@ namespace Xirsys.Client.Models.REST
         public String Role { get; set; }
         
         public BaseAdminModel()
+        {
+        }
+
+        public BaseAdminModel(String email, String password)
+            : this(email, password, null, null, null)
         {
         }
 

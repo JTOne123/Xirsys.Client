@@ -33,6 +33,10 @@ namespace Xirsys.Client.Utilities
 
         public const String UserNotAdmin = "user_not_admin";
 
+        public const String RequireEmail = "require_email";
+        public const String RequirePassword = "require_password";
+        public const String BadPasswordFormat = "bad_password_format";
+
         public const String BadMeContext = "bad_me_context";
 
         public const String UnauthorizedDomain = "unauthorized_domain";
