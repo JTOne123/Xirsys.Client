@@ -116,7 +116,8 @@ namespace Xirsys.Client
             return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status, 
                 apiResponse.ErrorResponse,
-                ConvertResult<TData>(apiResponse.Data));
+                ConvertResult<TData>(apiResponse.Data),
+                apiResponse.RawHttpResponse);
         }
 
         public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key, DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd)
@@ -139,7 +140,8 @@ namespace Xirsys.Client
             return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status,
                 apiResponse.ErrorResponse,
-                ConvertResult<TData>(apiResponse.Data));
+                ConvertResult<TData>(apiResponse.Data),
+                apiResponse.RawHttpResponse);
         }
 
         private static List<TimeSeriesDataKey<TResponseData>> ConvertResult<TResponseData>(List<List<JToken>> listOfLists)
@@ -199,7 +201,7 @@ namespace Xirsys.Client
             {
                 // value should never be null or NOT an object, if it is the service layer has some bugs
                 Logger.LogWarning("Invalid Xirsys Api Response. Value property is null or not an object. Response: {0}", responseStr);
-                return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null);
+                return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
             }
 
             var valueData = valueToken.ToObject<TSerializedData>();
@@ -207,7 +209,7 @@ namespace Xirsys.Client
             {
                 // likewise if we can't serialize back to data type, there is a problem
                 Logger.LogWarning("Invalid Xirsys Api Response. Value property did not deserialize to {0}. Response: {1}", typeof(TSerializedData).Name, responseStr);
-                return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null);
+                return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
             }
 
             var versionToken = valueToken[VersionResponse.VERSION_PROP];
@@ -231,7 +233,7 @@ namespace Xirsys.Client
             }
 
             var responseWithVersion = new DataVersionResponse<TResponseData>(serializedToResponseFunc(valueData), versionValue);
-            return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.OK_STATUS, responseWithVersion);
+            return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.OK_STATUS, responseWithVersion, responseStr);
         }
     }
 }

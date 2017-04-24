@@ -9,10 +9,6 @@ namespace Xirsys.Client.Models.REST
         [DataMember(Name = "active")]
         public Nullable<Boolean> Active { get; set; }
 
-        // unix timestamp in UTC timezone
-        [DataMember(Name = "created")]
-        public Nullable<Int32> Created { get; set; }
-
         public UpdateSubAccountModel()
         {
         }
@@ -21,7 +17,6 @@ namespace Xirsys.Client.Models.REST
             : base((BaseSubAccountModel)other)
         {
             this.Active = other.Active;
-            this.Created = other.Created;
         }
     }
 }

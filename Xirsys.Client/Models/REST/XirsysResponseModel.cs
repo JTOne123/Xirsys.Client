@@ -18,24 +18,28 @@ namespace Xirsys.Client.Models.REST
         [DataMember(Name = "error_reason", IsRequired = false)]
         public String ErrorResponse { get; set; }
 
+        [IgnoreDataMember]
+        public String RawHttpResponse { get; set; }
+
         public XirsysResponseModel()
         {
         }
 
-        public XirsysResponseModel(String status, TData data)
-            : this(status, null, data)
+        public XirsysResponseModel(String status, TData data, String rawHttpResponse)
+            : this(status, null, data, rawHttpResponse)
         {
         }
 
-        public XirsysResponseModel(String status, String errorResponse, TData data)
+        public XirsysResponseModel(String status, String errorResponse, TData data, String rawHttpResponse)
         {
             this.Status = status;
             this.ErrorResponse = errorResponse;
             this.Data = data;
+            this.RawHttpResponse = rawHttpResponse;
         }
 
         public XirsysResponseModel(XirsysResponseModel<TData> other)
-            : this(other.Status, other.ErrorResponse, other.Data)
+            : this(other.Status, other.ErrorResponse, other.Data, other.RawHttpResponse)
         {
         }
 

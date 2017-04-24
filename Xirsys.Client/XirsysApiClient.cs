@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Xirsys.Client.Extensions;
 using Xirsys.Client.Models.REST;
 using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
@@ -158,7 +159,7 @@ namespace Xirsys.Client
 
                 // check if value prop is there for error message, pretty much we have an error response though
                 return new XirsysResponseModel<TResponseData>(SystemMessages.ERROR_STATUS,
-                    GetErrorValue(responseStr, responseJObject), default(TResponseData));
+                    GetErrorValue(responseStr, responseJObject), default(TResponseData), responseStr);
             }
 
             String statusStr = statusToken.ToObject<String>();
@@ -186,7 +187,7 @@ namespace Xirsys.Client
                 {
                     // default create response object as error and try to get error value
                     return new XirsysResponseModel<TResponseData>(statusStr,
-                        GetErrorValue(responseStr, responseJObject), default(TResponseData));
+                        GetErrorValue(responseStr, responseJObject), default(TResponseData), responseStr);
                 }
             }
             else
@@ -201,7 +202,7 @@ namespace Xirsys.Client
                 {
                     // default create response object as whatever status is and try to get error value
                     return new XirsysResponseModel<TResponseData>(statusStr,
-                        GetErrorValue(responseStr, responseJObject), default(TResponseData));
+                        GetErrorValue(responseStr, responseJObject), default(TResponseData), responseStr);
                 }
             }
         }
@@ -251,33 +252,40 @@ namespace Xirsys.Client
                     Convert.ToBase64String(Encoding.UTF8.GetBytes(String.Format("{0}:{1}", requestUserName, requestPassword))));
             }
 
+            String responseStr = null;
             using (var response = await this.HttpClient.SendAsync(httpRequest).ConfigureAwait(false))
             {
                 try
                 {
                     if (!response.IsSuccessStatusCode)
                     {
-                        var errorResponse = await response.Content.ReadAsStringAsync()
+                        responseStr = await response.Content.ReadAsStringAsync()
                             .ConfigureAwait(false);
                         Logger.LogError("RequestUri: {0} HttpVerb: {1} StatusCode: {2} ReasonPhrase: {3} HttpContent: {4} HttpResponse: {5}",
-                            requestUri, requestVerb, response.StatusCode, response.ReasonPhrase, httpContentStr, errorResponse);
-                        return deserializeResponse(errorResponse);
+                            requestUri, requestVerb, response.StatusCode, response.ReasonPhrase, httpContentStr, responseStr);
+                        return deserializeResponse(responseStr);
                     }
 
-                    var strResponse = await response.Content.ReadAsStringAsync()
+                    responseStr = await response.Content.ReadAsStringAsync()
                         .ConfigureAwait(false);
-                    if (Logger.IsEnabled(LogLevel.Trace))
+                    if (Logger.IsEnabled(LogLevel.Debug))
                     {
+                        Logger.LogDebug("RequestUri: {0} HttpVerb: {1} HttpContent: {2} HttpResponse: {3}",
+                            requestUri, requestVerb, httpContentStr.DebugLengthCheck(), responseStr.DebugLengthCheck());
+                    }
+                    else if (Logger.IsEnabled(LogLevel.Trace))
+                    {
+                        // can be problematic if there is TOO much to print in httpContentStr
                         Logger.LogTrace("RequestUri: {0} HttpVerb: {1} HttpContent: {2} HttpResponse: {3}",
-                            requestUri, requestVerb, httpContentStr, strResponse);
+                            requestUri, requestVerb, httpContentStr, responseStr);
                     }
 
-                    return deserializeResponse(strResponse);
+                    return deserializeResponse(responseStr);
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError(0, ex, "Error parsing response");
-                    return new XirsysResponseModel<TResponseData>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, default(TResponseData));
+                    return new XirsysResponseModel<TResponseData>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, default(TResponseData), responseStr);
                 }
             }
         }

@@ -35,10 +35,6 @@ namespace Xirsys.Client.Models.REST
             {
                 this.Active = updateSubAccount.Active.Value;
             }
-            if (updateSubAccount.Created.HasValue)
-            {
-                this.Created = updateSubAccount.Created.Value;
-            }
         }
 
 

@@ -21,7 +21,8 @@ namespace Xirsys.Client
             return new XirsysResponseModel<List<IceServerModel>>(
                 iceServerResponse.Status, 
                 iceServerResponse.ErrorResponse, 
-                ConvertModel(iceServerResponse.Data));
+                ConvertModel(iceServerResponse.Data),
+                iceServerResponse.RawHttpResponse);
         }
 
         public List<IceServerModel> ConvertModel(TurnServersResponse turnServersResponse)

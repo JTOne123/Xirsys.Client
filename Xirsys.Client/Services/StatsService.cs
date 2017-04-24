@@ -68,7 +68,8 @@ namespace Xirsys.Client
             return new XirsysResponseModel<Dictionary<DateTime, StatsResponse>>(
                 statBreakdownResponse.Status,
                 statBreakdownResponse.ErrorResponse,
-                ConvertResult(statBreakdownResponse.Data, dateTimeStrFormat)
+                ConvertResult(statBreakdownResponse.Data, dateTimeStrFormat),
+                statBreakdownResponse.RawHttpResponse
             );
         }
 
@@ -130,7 +131,8 @@ namespace Xirsys.Client
             return new XirsysResponseModel<Dictionary<DateTime, StatsResponse>>(
                 statBreakdownResponse.Status,
                 statBreakdownResponse.ErrorResponse,
-                ConvertResult(statBreakdownResponse.Data, dateTimeStrFormat)
+                ConvertResult(statBreakdownResponse.Data, dateTimeStrFormat),
+                statBreakdownResponse.RawHttpResponse
             );
         }
 
@@ -147,7 +149,7 @@ namespace Xirsys.Client
                     String.Equals("[]", valueToken.ToString())
                 ))
             {
-                return new XirsysResponseModel<TResponse>(SystemMessages.OK_STATUS, new TResponse());
+                return new XirsysResponseModel<TResponse>(SystemMessages.OK_STATUS, new TResponse(), responseStr);
             }
 
             // else allow normal JSON.NET deserialization

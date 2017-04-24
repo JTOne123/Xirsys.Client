@@ -119,19 +119,15 @@ namespace Xirsys.Client
             return InternalGetAsync<List<String>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE));
         }
 
-        public Task<XirsysResponseModel<VersionResponse>> UpdateSubAccountAsync(String userName, UpdateSubAccountModel modifySubAccountProps)
+        public Task<XirsysResponseModel<DataVersionResponse<SubAccountModel>>> UpdateSubAccountAsync(String userName, UpdateSubAccountModel modifySubAccountProps)
         {
             // not documented but it was mentioned in passing that if a field is serialized as null on the wire
             // the API would remove the field, otherwise only fields sent are modified
             // right now our XirsysApiClient ignores null fields (does not serialize) so this can't be used yet
 
             // cannot modify username
-            // also email not allowed to be modified
-            modifySubAccountProps.Email = null;
-
-            // actually returns nothing in value
-            return InternalPostAsync<KeyValueModel<UpdateSubAccountModel>, VersionResponse>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
-                new KeyValueModel<UpdateSubAccountModel>(userName, modifySubAccountProps));
+            return InternalPostAsync<KeyValueModel<UpdateSubAccountModel>, DataVersionResponse<SubAccountModel>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
+                new KeyValueModel<UpdateSubAccountModel>(userName, modifySubAccountProps), okParseResponse: DataParseResponseWithVersion<SubAccountModel>);
         }
     }
 }
