@@ -241,8 +241,7 @@ namespace Xirsys.Client
             String httpContentStr = null;
             if (httpRequest.Content != null)
             {
-                httpContentStr = await httpRequest.Content.ReadAsStringAsync()
-                    .ConfigureAwait(false);
+                httpContentStr = await httpRequest.Content.ReadAsStringAsync();
             }
 
             if (requestUserName != null)
@@ -253,21 +252,19 @@ namespace Xirsys.Client
             }
 
             String responseStr = null;
-            using (var response = await this.HttpClient.SendAsync(httpRequest).ConfigureAwait(false))
+            using (var response = await this.HttpClient.SendAsync(httpRequest))
             {
                 try
                 {
                     if (!response.IsSuccessStatusCode)
                     {
-                        responseStr = await response.Content.ReadAsStringAsync()
-                            .ConfigureAwait(false);
+                        responseStr = await response.Content.ReadAsStringAsync();
                         Logger.LogError("RequestUri: {0} HttpVerb: {1} StatusCode: {2} ReasonPhrase: {3} HttpContent: {4} HttpResponse: {5}",
                             requestUri, requestVerb, response.StatusCode, response.ReasonPhrase, httpContentStr, responseStr);
                         return deserializeResponse(responseStr);
                     }
 
-                    responseStr = await response.Content.ReadAsStringAsync()
-                        .ConfigureAwait(false);
+                    responseStr = await response.Content.ReadAsStringAsync();
                     if (Logger.IsEnabled(LogLevel.Debug))
                     {
                         Logger.LogDebug("RequestUri: {0} HttpVerb: {1} HttpContent: {2} HttpResponse: {3}",
@@ -306,8 +303,7 @@ namespace Xirsys.Client
             using (var httpReq = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri))
             {
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret,
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null))
-                    .ConfigureAwait(false);
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
             }
         }
 
@@ -329,8 +325,7 @@ namespace Xirsys.Client
             {
                 httpReq.Content = new StringContent(serializeContentData(data), Encoding.UTF8, "application/json");
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null))
-                    .ConfigureAwait(false);
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
             }
         }
 
@@ -352,8 +347,7 @@ namespace Xirsys.Client
             {
                 httpReq.Content = new StringContent(serializeContentData(data), Encoding.UTF8, "application/json");
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null))
-                    .ConfigureAwait(false);
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
             }
         }
 
@@ -373,8 +367,7 @@ namespace Xirsys.Client
             using (var httpReq = new HttpRequestMessage(HttpMethod.Delete, uriBuilder.Uri))
             {
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null))
-                    .ConfigureAwait(false);
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
             }
         }
     }

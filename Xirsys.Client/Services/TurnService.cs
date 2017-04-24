@@ -15,8 +15,7 @@ namespace Xirsys.Client
 
         public async Task<XirsysResponseModel<List<IceServerModel>>> ListTurnServersAsync(String path)
         {
-            var iceServerResponse = await InternalPutAsync<Object, TurnServersResponse>(GetServiceMethodPath(TURN_SERVICE, path))
-                .ConfigureAwait(false);
+            var iceServerResponse = await InternalPutAsync<Object, TurnServersResponse>(GetServiceMethodPath(TURN_SERVICE, path));
 
             return new XirsysResponseModel<List<IceServerModel>>(
                 iceServerResponse.Status, 

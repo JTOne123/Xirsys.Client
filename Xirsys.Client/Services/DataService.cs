@@ -110,8 +110,7 @@ namespace Xirsys.Client
                     {
                         { "k", key },
                         { "time_series", "1" },
-                    })
-                    .ConfigureAwait(false);
+                    });
 
             return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status, 
@@ -134,8 +133,7 @@ namespace Xirsys.Client
                 // if groupEnd is not specified the end date becomes the last DateTime within groupPrecision
                 parameters.Add("ge", groupEnd.Value.ToString(dateTimeStrFormat));
             }
-            var apiResponse = await InternalGetAsync<List<List<JToken>>>(GetServiceMethodPath(DATA_SERVICE, path), parameters)
-                .ConfigureAwait(false);
+            var apiResponse = await InternalGetAsync<List<List<JToken>>>(GetServiceMethodPath(DATA_SERVICE, path), parameters);
 
             return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status,

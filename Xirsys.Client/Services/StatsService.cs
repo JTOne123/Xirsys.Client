@@ -41,8 +41,7 @@ namespace Xirsys.Client
                 // if groupEnd is not specified the end date becomes the last DateTime within groupPrecision
                 parameters.Add("ge", groupEnd.Value.ToString(dateTimeStrFormat));
             }
-            return await InternalGetAsync<StatsResponse>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<StatsResponse>)
-                .ConfigureAwait(false);
+            return await InternalGetAsync<StatsResponse>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<StatsResponse>);
         }
 
         // not working?
@@ -62,8 +61,7 @@ namespace Xirsys.Client
             {
                 parameters.Add("ge", groupEnd.Value.ToString(dateTimeStrFormat));
             }
-            var statBreakdownResponse = await InternalGetAsync<Dictionary<String, StatsResponse>>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>)
-                .ConfigureAwait(false);
+            var statBreakdownResponse = await InternalGetAsync<Dictionary<String, StatsResponse>>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>);
 
             return new XirsysResponseModel<Dictionary<DateTime, StatsResponse>>(
                 statBreakdownResponse.Status,
@@ -97,8 +95,7 @@ namespace Xirsys.Client
 
             return await InternalGetAsync<StatsResponse>(
                 GetServiceMethodPath(STATS_SERVICE, $"{apiService.ToStringValue()}/{apiHttpVerb.ToStringValue()}"), 
-                parameters, StatParseResponseFix<StatsResponse>)
-                .ConfigureAwait(false);
+                parameters, StatParseResponseFix<StatsResponse>);
         }
 
         public async Task<XirsysResponseModel<Dictionary<DateTime, StatsResponse>>> GetStatsBreakdownAsync(ApiService apiService, ApiHttpVerb apiHttpVerb,
@@ -125,8 +122,7 @@ namespace Xirsys.Client
 
             var statBreakdownResponse = await InternalGetAsync<Dictionary<String, StatsResponse>>(
                 GetServiceMethodPath(STATS_SERVICE, $"{apiService.ToStringValue()}/{apiHttpVerb.ToStringValue()}"),
-                parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>)
-                .ConfigureAwait(false);
+                parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>);
 
             return new XirsysResponseModel<Dictionary<DateTime, StatsResponse>>(
                 statBreakdownResponse.Status,

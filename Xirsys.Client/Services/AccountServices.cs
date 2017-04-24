@@ -17,8 +17,7 @@ namespace Xirsys.Client
         public async Task<XirsysResponseModel<DataVersionResponse<AdminModel>>> AddAdminAsync(String adminName, BaseAdminModel adminAccount)
         {
             var apiResponse = await InternalPutAsync(GetServiceMethodPath(ACCOUNT_ADMIN_SERVICE), 
-                new KeyValueModel<BaseAdminModel>(adminName, adminAccount), okParseResponse: DataParseResponseWithVersion<AdminModel>)
-                .ConfigureAwait(false);
+                new KeyValueModel<BaseAdminModel>(adminName, adminAccount), okParseResponse: DataParseResponseWithVersion<AdminModel>);
 
             if (apiResponse.IsOk())
             {
@@ -44,8 +43,7 @@ namespace Xirsys.Client
                 new KeyValueList<String, String>(1)
                     {
                         { "k", adminName }
-                    }, okParseResponse: DataParseResponseWithVersion<AdminModel>)
-                .ConfigureAwait(false);
+                    }, okParseResponse: DataParseResponseWithVersion<AdminModel>);
 
             if (apiResponse.IsOk())
             {
