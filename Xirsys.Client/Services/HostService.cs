@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xirsys.Client.Models.REST;
 using Xirsys.Client.Utilities;
@@ -9,7 +10,7 @@ namespace Xirsys.Client
     {
         protected const String HOST_SERVICE = "_host";
 
-        public Task<XirsysResponseModel<String>> GetBestSignalServerAsync(String path = null)
+        public Task<XirsysResponseModel<String>> GetBestSignalServerAsync(String path = null, CancellationToken cancelToken = default(CancellationToken))
         {
             var qs = new QueryStringList(1)
                 {
@@ -17,7 +18,8 @@ namespace Xirsys.Client
                     // wtf does this do
                     // { "k", name },
                 };
-            return InternalGetAsync<String>(GetServiceMethodPath(HOST_SERVICE, path ?? String.Empty), qs);
+            return InternalGetAsync<String>(GetServiceMethodPath(HOST_SERVICE, path ?? String.Empty), qs,
+                cancelToken: cancelToken);
         }
 
         /*

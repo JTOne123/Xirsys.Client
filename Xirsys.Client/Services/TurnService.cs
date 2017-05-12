@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Xirsys.Client.Models.REST;
@@ -13,9 +14,11 @@ namespace Xirsys.Client
     {
         protected const String TURN_SERVICE = "_turn";
 
-        public async Task<XirsysResponseModel<List<IceServerModel>>> ListTurnServersAsync(String path)
+        public async Task<XirsysResponseModel<List<IceServerModel>>> ListTurnServersAsync(String path, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            var iceServerResponse = await InternalPutAsync<Object, TurnServersResponse>(GetServiceMethodPath(TURN_SERVICE, path));
+            var iceServerResponse = await InternalPutAsync<Object, TurnServersResponse>(GetServiceMethodPath(TURN_SERVICE, path),
+                cancelToken: cancelToken);
 
             return new XirsysResponseModel<List<IceServerModel>>(
                 iceServerResponse.Status, 

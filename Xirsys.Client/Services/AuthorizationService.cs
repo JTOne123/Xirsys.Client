@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -14,12 +15,15 @@ namespace Xirsys.Client
     {
         protected const String AUTH_SERVICE = "_auth";
 
-        public Task<XirsysResponseModel<List<String>>> ListBlockIpAddressesAsync(String path)
+        public Task<XirsysResponseModel<List<String>>> ListBlockIpAddressesAsync(String path, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return InternalGetAsync<List<String>>(GetServiceMethodPath(AUTH_SERVICE, path));
+            return InternalGetAsync<List<String>>(GetServiceMethodPath(AUTH_SERVICE, path),
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> GetBlockIpAddressAsync<TData>(String path, String ipAddress)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> GetBlockIpAddressAsync<TData>(String path, String ipAddress, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             Func<String, JObject, XirsysResponseModel<DataVersionResponse<TData>>> okSerializeFunc;
             if (typeof(TData).IsSimpleType())
@@ -36,25 +40,33 @@ namespace Xirsys.Client
                     {
                         { "k", ipAddress }
                     },
-                okParseResponse: okSerializeFunc);
+                okParseResponse: okSerializeFunc,
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<Object>>> AddBlockIpAddressAsyncAsync(String path, String ipAddress)
+        public Task<XirsysResponseModel<DataVersionResponse<Object>>> AddBlockIpAddressAsyncAsync(String path, String ipAddress, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return AddBlockIpAddressAsyncAsync(path, ipAddress, new Object(), null);
+            return AddBlockIpAddressAsyncAsync(path, ipAddress, new Object(), null,
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<Object>>> AddBlockIpAddressAsyncAsync(String path, String ipAddress, String oldVersion)
+        public Task<XirsysResponseModel<DataVersionResponse<Object>>> AddBlockIpAddressAsyncAsync(String path, String ipAddress, String oldVersion, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return AddBlockIpAddressAsyncAsync(path, ipAddress, new Object(), oldVersion);
+            return AddBlockIpAddressAsyncAsync(path, ipAddress, new Object(), oldVersion,
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddBlockIpAddressAsyncAsync<TData>(String path, String ipAddress, TData note)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddBlockIpAddressAsyncAsync<TData>(String path, String ipAddress, TData note, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return AddBlockIpAddressAsyncAsync(path, ipAddress, note, null);
+            return AddBlockIpAddressAsyncAsync(path, ipAddress, note, null,
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddBlockIpAddressAsyncAsync<TData>(String path, String ipAddress, TData note, String oldVersion)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddBlockIpAddressAsyncAsync<TData>(String path, String ipAddress, TData note, String oldVersion, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             KeyValueModel<Object> blockIpObj;
             Func<KeyValueModel<Object>, String> serializeDataFunc;
@@ -93,21 +105,26 @@ namespace Xirsys.Client
                 okParseFunc = DataParseResponseWithVersion<TData>;
             }
 
-            return InternalPutAsync(GetServiceMethodPath(AUTH_SERVICE, path), blockIpObj, serializeContentData: serializeDataFunc, okParseResponse: okParseFunc);
+            return InternalPutAsync(GetServiceMethodPath(AUTH_SERVICE, path), blockIpObj, serializeContentData: serializeDataFunc, okParseResponse: okParseFunc,
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<Int32>> RemoveBlockIpAddressAsync(String path, String ipAddress)
+        public Task<XirsysResponseModel<Int32>> RemoveBlockIpAddressAsync(String path, String ipAddress, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             return InternalDeleteAsync<Int32>(GetServiceMethodPath(AUTH_SERVICE, path),
                 new QueryStringList(1)
                     {
                         { "k", ipAddress }
-                    });
+                    },
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<Object>> RemoveAllBlockIpAddressesAsync(String path)
+        public Task<XirsysResponseModel<Object>> RemoveAllBlockIpAddressesAsync(String path, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return InternalDeleteAsync<Object>(GetServiceMethodPath(AUTH_SERVICE, path));
+            return InternalDeleteAsync<Object>(GetServiceMethodPath(AUTH_SERVICE, path),
+                cancelToken: cancelToken);
         }
     }
 }

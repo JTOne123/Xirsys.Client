@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -228,7 +229,8 @@ namespace Xirsys.Client
         }
 
         protected async Task<XirsysResponseModel<TResponseData>> InternalSendAsync<TResponseData>(HttpRequestMessage httpRequest, String requestUserName, String requestPassword, 
-            Func<String, XirsysResponseModel<TResponseData>> deserializeResponse = null)
+            Func<String, XirsysResponseModel<TResponseData>> deserializeResponse = null, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             if (deserializeResponse == null)
             {
@@ -252,7 +254,7 @@ namespace Xirsys.Client
             }
 
             String responseStr = null;
-            using (var response = await this.HttpClient.SendAsync(httpRequest))
+            using (var response = await this.HttpClient.SendAsync(httpRequest, cancelToken))
             {
                 try
                 {
@@ -288,7 +290,8 @@ namespace Xirsys.Client
         }
 
         protected async Task<XirsysResponseModel<TResponseData>> InternalGetAsync<TResponseData>(String servicePath,
-            IEnumerable<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
+            IEnumerable<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null,
+            CancellationToken cancelToken = default(CancellationToken))
         {
             if (!servicePath.StartsWith("/"))
             {
@@ -303,14 +306,15 @@ namespace Xirsys.Client
             using (var httpReq = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri))
             {
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret,
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null), cancelToken);
             }
         }
 
         protected async Task<XirsysResponseModel<TResponseData>> InternalPostAsync<TContentData, TResponseData>(String servicePath,
             TContentData data = default(TContentData), 
             Func<TContentData, String> serializeContentData = null,
-            Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
+            Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null,
+            CancellationToken cancelToken = default(CancellationToken))
         {
             if (!servicePath.StartsWith("/"))
             {
@@ -325,14 +329,15 @@ namespace Xirsys.Client
             {
                 httpReq.Content = new StringContent(serializeContentData(data), Encoding.UTF8, "application/json");
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null), cancelToken);
             }
         }
 
         protected async Task<XirsysResponseModel<TResponseData>> InternalPutAsync<TContentData, TResponseData>(String servicePath,
             TContentData data = default(TContentData),
             Func<TContentData, String> serializeContentData = null,
-            Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
+            Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null,
+            CancellationToken cancelToken = default(CancellationToken))
         {
             if (!servicePath.StartsWith("/"))
             {
@@ -347,12 +352,13 @@ namespace Xirsys.Client
             {
                 httpReq.Content = new StringContent(serializeContentData(data), Encoding.UTF8, "application/json");
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null), cancelToken);
             }
         }
 
         protected async Task<XirsysResponseModel<TResponseData>> InternalDeleteAsync<TResponseData>(String servicePath,
-            IEnumerable<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null)
+            IEnumerable<KeyValuePair<String, String>> parameters = null, Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null,
+            CancellationToken cancelToken = default(CancellationToken))
         {
             if (!servicePath.StartsWith("/"))
             {
@@ -367,7 +373,7 @@ namespace Xirsys.Client
             using (var httpReq = new HttpRequestMessage(HttpMethod.Delete, uriBuilder.Uri))
             {
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
-                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null));
+                    (responseStr) => ParseResponse(responseStr, okParseResponse, null, null), cancelToken);
             }
         }
     }

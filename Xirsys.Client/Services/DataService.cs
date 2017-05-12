@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -16,12 +17,15 @@ namespace Xirsys.Client
     {
         protected const String DATA_SERVICE = "_data";
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return AddDataKeyAsync(path, key, value, null);
+            return AddDataKeyAsync(path, key, value, null,
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, String oldVersion)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, String oldVersion, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             KeyValueModel<Object> addDataObj;
             Func<KeyValueModel<Object>, String> serializeDataFunc;
@@ -60,26 +64,32 @@ namespace Xirsys.Client
                 okParseFunc = DataParseResponseWithVersion<TData>;
             }
 
-            return InternalPutAsync(GetServiceMethodPath(DATA_SERVICE, path), addDataObj, serializeContentData: serializeDataFunc, okParseResponse: okParseFunc);
+            return InternalPutAsync(GetServiceMethodPath(DATA_SERVICE, path), addDataObj, serializeContentData: serializeDataFunc, okParseResponse: okParseFunc,
+                cancelToken: cancelToken);
         }
 
 
-        public Task<XirsysResponseModel<Int32>> RemoveDataKeyAsync(String path, String key)
+        public Task<XirsysResponseModel<Int32>> RemoveDataKeyAsync(String path, String key, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             return InternalDeleteAsync<Int32>(GetServiceMethodPath(DATA_SERVICE, path),
                 new QueryStringList(1)
                     {
                         { "k", key }
-                    });
+                    },
+                cancelToken: cancelToken);
         }
 
 
-        public Task<XirsysResponseModel<Int32>> RemoveAllDataKeysAsync(String path)
+        public Task<XirsysResponseModel<Int32>> RemoveAllDataKeysAsync(String path, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return InternalDeleteAsync<Int32>(GetServiceMethodPath(DATA_SERVICE, path));
+            return InternalDeleteAsync<Int32>(GetServiceMethodPath(DATA_SERVICE, path),
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> GetDataKeyAsync<TData>(String path, String key)
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> GetDataKeyAsync<TData>(String path, String key, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             Func<String, JObject, XirsysResponseModel<DataVersionResponse<TData>>> okSerializeFunc;
             var qs = new QueryStringList(1)
@@ -95,22 +105,27 @@ namespace Xirsys.Client
             {
                 okSerializeFunc = DataParseResponseWithVersion<TData>;
             }
-            return InternalGetAsync(GetServiceMethodPath(DATA_SERVICE, path), qs, okSerializeFunc);
+            return InternalGetAsync(GetServiceMethodPath(DATA_SERVICE, path), qs, okSerializeFunc,
+                cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<List<String>>> ListDataKeysAsync(String path)
+        public Task<XirsysResponseModel<List<String>>> ListDataKeysAsync(String path, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
-            return InternalGetAsync<List<String>>(GetServiceMethodPath(DATA_SERVICE, path));
+            return InternalGetAsync<List<String>>(GetServiceMethodPath(DATA_SERVICE, path),
+                cancelToken: cancelToken);
         }
 
-        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key)
+        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             var apiResponse = await InternalGetAsync<List<List<JToken>>>(GetServiceMethodPath(DATA_SERVICE, path),
                 new QueryStringList(2)
                     {
                         { "k", key },
                         { "time_series", "1" },
-                    });
+                    },
+                cancelToken: cancelToken);
 
             return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status, 
@@ -119,7 +134,8 @@ namespace Xirsys.Client
                 apiResponse.RawHttpResponse);
         }
 
-        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key, DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd)
+        public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key, DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
             var parameters = new QueryStringList(4)
@@ -133,7 +149,8 @@ namespace Xirsys.Client
                 // if groupEnd is not specified the end date becomes the last DateTime within groupPrecision
                 parameters.Add("ge", groupEnd.Value.ToString(dateTimeStrFormat));
             }
-            var apiResponse = await InternalGetAsync<List<List<JToken>>>(GetServiceMethodPath(DATA_SERVICE, path), parameters);
+            var apiResponse = await InternalGetAsync<List<List<JToken>>>(GetServiceMethodPath(DATA_SERVICE, path), parameters,
+                cancelToken: cancelToken);
 
             return new XirsysResponseModel<List<TimeSeriesDataKey<TData>>>(
                 apiResponse.Status,

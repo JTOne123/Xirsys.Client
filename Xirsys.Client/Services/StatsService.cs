@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,19 +15,20 @@ namespace Xirsys.Client
     {
         protected const String STATS_SERVICE = "_stats";
 
-        public Task<XirsysResponseModel<Object>> AddStatsAsync()
+        public Task<XirsysResponseModel<Object>> AddStatsAsync(CancellationToken cancelToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task<XirsysResponseModel<Object>> RemoveStatsAsync()
+        public Task<XirsysResponseModel<Object>> RemoveStatsAsync(CancellationToken cancelToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
         // not working?
         public async Task<XirsysResponseModel<StatsResponse>> GetStatsAsync(String path, StatMeasurement measurement, 
-            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null)
+            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             ValidateMeasurement(measurement);
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
@@ -41,12 +43,14 @@ namespace Xirsys.Client
                 // if groupEnd is not specified the end date becomes the last DateTime within groupPrecision
                 parameters.Add("ge", groupEnd.Value.ToString(dateTimeStrFormat));
             }
-            return await InternalGetAsync<StatsResponse>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<StatsResponse>);
+            return await InternalGetAsync<StatsResponse>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<StatsResponse>,
+                cancelToken: cancelToken);
         }
 
         // not working?
         public async Task<XirsysResponseModel<Dictionary<DateTime, StatsResponse>>> GetStatsBreakdownAsync(String path, StatMeasurement measurement, 
-            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null)
+            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             ValidateMeasurement(measurement);
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
@@ -61,7 +65,8 @@ namespace Xirsys.Client
             {
                 parameters.Add("ge", groupEnd.Value.ToString(dateTimeStrFormat));
             }
-            var statBreakdownResponse = await InternalGetAsync<Dictionary<String, StatsResponse>>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>);
+            var statBreakdownResponse = await InternalGetAsync<Dictionary<String, StatsResponse>>(GetServiceMethodPath(STATS_SERVICE, path), parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>,
+                cancelToken: cancelToken);
 
             return new XirsysResponseModel<Dictionary<DateTime, StatsResponse>>(
                 statBreakdownResponse.Status,
@@ -73,7 +78,8 @@ namespace Xirsys.Client
 
         // also not working?
         public async Task<XirsysResponseModel<StatsResponse>> GetStatsAsync(ApiService apiService, ApiHttpVerb apiHttpVerb,
-            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, String ident = null)
+            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, String ident = null, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             ValidateApiService(apiService);
             ValidateApiHttpVerb(apiHttpVerb);
@@ -95,11 +101,13 @@ namespace Xirsys.Client
 
             return await InternalGetAsync<StatsResponse>(
                 GetServiceMethodPath(STATS_SERVICE, $"{apiService.ToStringValue()}/{apiHttpVerb.ToStringValue()}"), 
-                parameters, StatParseResponseFix<StatsResponse>);
+                parameters, StatParseResponseFix<StatsResponse>,
+                cancelToken: cancelToken);
         }
 
         public async Task<XirsysResponseModel<Dictionary<DateTime, StatsResponse>>> GetStatsBreakdownAsync(ApiService apiService, ApiHttpVerb apiHttpVerb,
-            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, String ident = null)
+            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, String ident = null, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             ValidateApiService(apiService);
             ValidateApiHttpVerb(apiHttpVerb);
@@ -122,7 +130,8 @@ namespace Xirsys.Client
 
             var statBreakdownResponse = await InternalGetAsync<Dictionary<String, StatsResponse>>(
                 GetServiceMethodPath(STATS_SERVICE, $"{apiService.ToStringValue()}/{apiHttpVerb.ToStringValue()}"),
-                parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>);
+                parameters, StatParseResponseFix<Dictionary<String, StatsResponse>>,
+                cancelToken: cancelToken);
 
             return new XirsysResponseModel<Dictionary<DateTime, StatsResponse>>(
                 statBreakdownResponse.Status,
