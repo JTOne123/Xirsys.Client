@@ -14,7 +14,7 @@ namespace Xirsys.Client.Models.REST
 
         // unix timestamp in UTC timezone
         [DataMember(Name = "created")]
-        public Int32 Created { get; set; }
+        public Int64 Created { get; set; }
 
         public SubAccountModel()
         {
@@ -58,7 +58,7 @@ namespace Xirsys.Client.Models.REST
                 Int32 hashCode = base.GetHashCode();
                 hashCode = (hashCode*397) ^ (UserName != null ? UserName.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ Active.GetHashCode();
-                hashCode = (hashCode*397) ^ Created;
+                hashCode = (hashCode*397) ^ Created.GetHashCode();
                 return hashCode;
             }
         }
