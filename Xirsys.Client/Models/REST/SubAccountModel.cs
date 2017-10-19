@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Xirsys.Client.Models.REST
 {
@@ -14,6 +16,9 @@ namespace Xirsys.Client.Models.REST
 
         // unix timestamp in UTC timezone
         [DataMember(Name = "created")]
+        // because xirsys can't have nice things
+        [DefaultValue(0L)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, NullValueHandling = NullValueHandling.Ignore)]
         public Int64 Created { get; set; }
 
         public SubAccountModel()

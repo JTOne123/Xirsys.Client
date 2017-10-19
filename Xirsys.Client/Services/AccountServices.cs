@@ -135,6 +135,17 @@ namespace Xirsys.Client
                 cancelToken: cancelToken);
         }
 
+        public Task<XirsysResponseModel<List<DataVersionResponse<SubAccountModel>>>> ListSubAccountValuesAsync(CancellationToken cancelToken = default(CancellationToken))
+        {
+            return InternalGetAsync<List<DataVersionResponse<SubAccountModel>>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
+                new QueryStringList(1)
+                    {
+                        {"as", "1"}
+                    },
+                okParseResponse: ListDataParseResponseWithVersion<SubAccountModel>,
+                cancelToken: cancelToken);
+        }
+
         public Task<XirsysResponseModel<DataVersionResponse<SubAccountModel>>> UpdateSubAccountAsync(String userName, UpdateSubAccountModel modifySubAccountProps, CancellationToken cancelToken = default(CancellationToken))
         {
             // not documented but it was mentioned in passing that if a field is serialized as null on the wire
