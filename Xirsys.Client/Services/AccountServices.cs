@@ -88,16 +88,19 @@ namespace Xirsys.Client
 
 
 
-        public Task<XirsysResponseModel<DataVersionResponse<SubAccountModel>>> AddSubAccountAsync(String userName, BaseSubAccountModel subAccount, 
+        public Task<XirsysResponseModel<DataVersionResponse<TAccountModel>>> AddSubAccountAsync<TBaseModel, TAccountModel>(String userName, TBaseModel subAccount, 
             CancellationToken cancelToken = default(CancellationToken))
+            where TBaseModel : BaseSubAccountModel
+            where TAccountModel : SubAccountModel
         {
-            return InternalPutAsync<Object, DataVersionResponse<SubAccountModel>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE), 
+            return InternalPutAsync<Object, DataVersionResponse<TAccountModel>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE), 
                 new KeyValueModel<BaseSubAccountModel>(userName, subAccount),
-                okParseResponse: DataParseResponseWithVersion<SubAccountModel>,
+                okParseResponse: DataParseResponseWithVersion<TAccountModel>,
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<Int32>> RemoveSubAccountAsync(String userName, CancellationToken cancelToken = default(CancellationToken))
+        public Task<XirsysResponseModel<Int32>> RemoveSubAccountAsync(String userName, 
+            CancellationToken cancelToken = default(CancellationToken))
         {
             return InternalDeleteAsync<Int32>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE), 
                 new QueryStringList(1)
@@ -107,25 +110,29 @@ namespace Xirsys.Client
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<SubAccountModel>>> GetSubAccountByUserNameAsync(String userName, CancellationToken cancelToken = default(CancellationToken))
+        public Task<XirsysResponseModel<DataVersionResponse<TAccountModel>>> GetSubAccountByUserNameAsync<TAccountModel>(String userName, 
+            CancellationToken cancelToken = default(CancellationToken))
+            where TAccountModel : SubAccountModel
         {
             return InternalGetAsync(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
                 new QueryStringList(1)
                     {
                         { "k", userName }
                     },
-                okParseResponse: DataParseResponseWithVersion<SubAccountModel>,
+                okParseResponse: DataParseResponseWithVersion<TAccountModel>,
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<SubAccountModel>>> GetSubAccountByEmailAsync(String email, CancellationToken cancelToken = default(CancellationToken))
+        public Task<XirsysResponseModel<DataVersionResponse<TAccountModel>>> GetSubAccountByEmailAsync<TAccountModel>(String email, 
+            CancellationToken cancelToken = default(CancellationToken))
+            where TAccountModel : SubAccountModel
         {
             return InternalGetAsync(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
                 new QueryStringList(1)
                     {
                         { "k2", email }
                     },
-                okParseResponse: DataParseResponseWithVersion<SubAccountModel>,
+                okParseResponse: DataParseResponseWithVersion<TAccountModel>,
                 cancelToken: cancelToken);
         }
 
@@ -135,26 +142,30 @@ namespace Xirsys.Client
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<List<DataVersionResponse<SubAccountModel>>>> ListSubAccountValuesAsync(CancellationToken cancelToken = default(CancellationToken))
+        public Task<XirsysResponseModel<List<DataVersionResponse<TAccountModel>>>> ListSubAccountValuesAsync<TAccountModel>(CancellationToken cancelToken = default(CancellationToken))
+            where TAccountModel : SubAccountModel
         {
-            return InternalGetAsync<List<DataVersionResponse<SubAccountModel>>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
+            return InternalGetAsync<List<DataVersionResponse<TAccountModel>>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
                 new QueryStringList(1)
                     {
                         {"as", "1"}
                     },
-                okParseResponse: ListDataParseResponseWithVersion<SubAccountModel>,
+                okParseResponse: ListDataParseResponseWithVersion<TAccountModel>,
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<SubAccountModel>>> UpdateSubAccountAsync(String userName, UpdateSubAccountModel modifySubAccountProps, CancellationToken cancelToken = default(CancellationToken))
+        public Task<XirsysResponseModel<DataVersionResponse<TAccountModel>>> UpdateSubAccountAsync<TAccountModel, TUpdateAccountModel>(String userName, TUpdateAccountModel modifySubAccountProps, 
+            CancellationToken cancelToken = default(CancellationToken))
+            where TAccountModel : SubAccountModel
+            where TUpdateAccountModel : UpdateSubAccountModel
         {
             // not documented but it was mentioned in passing that if a field is serialized as null on the wire
             // the API would remove the field, otherwise only fields sent are modified
             // right now our XirsysApiClient ignores null fields (does not serialize) so this can't be used yet
 
             // cannot modify username
-            return InternalPostAsync<KeyValueModel<UpdateSubAccountModel>, DataVersionResponse<SubAccountModel>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
-                new KeyValueModel<UpdateSubAccountModel>(userName, modifySubAccountProps), okParseResponse: DataParseResponseWithVersion<SubAccountModel>, 
+            return InternalPostAsync<KeyValueModel<TUpdateAccountModel>, DataVersionResponse<TAccountModel>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
+                new KeyValueModel<TUpdateAccountModel>(userName, modifySubAccountProps), okParseResponse: DataParseResponseWithVersion<TAccountModel>, 
                 cancelToken: cancelToken);
         }
     }
