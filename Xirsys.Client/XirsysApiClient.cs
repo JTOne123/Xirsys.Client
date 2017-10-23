@@ -65,6 +65,17 @@ namespace Xirsys.Client
             this.Secret = apiSecret;
         }
 
+        public XirsysApiClient(XirsysApiClient otherClient, String apiBaseUrl = null, String apiIdent = null, String apiSecret = null)
+        {
+            this.Logger = otherClient.Logger;
+
+            this.BaseApiUrl = apiBaseUrl ?? otherClient.BaseApiUrl;
+            this.Ident = apiIdent ?? otherClient.Ident;
+            this.Secret = apiSecret ?? otherClient.Secret;
+
+            this.HttpClient = otherClient.HttpClient;
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -261,8 +272,8 @@ namespace Xirsys.Client
                     if (!response.IsSuccessStatusCode)
                     {
                         responseStr = await response.Content.ReadAsStringAsync();
-                        Logger.LogError("RequestUri: {0} HttpVerb: {1} StatusCode: {2} ReasonPhrase: {3} HttpContent: {4} HttpResponse: {5}",
-                            requestUri, requestVerb, response.StatusCode, response.ReasonPhrase, httpContentStr, responseStr);
+                        Logger.LogError("RequestUri: {0} HttpVerb: {1} UserName: {2} StatusCode: {3} ReasonPhrase: {4} HttpContent: {5} HttpResponse: {6}",
+                            requestUri, requestVerb, requestUserName, response.StatusCode, response.ReasonPhrase, httpContentStr, responseStr);
                         return deserializeResponse(responseStr);
                     }
 
