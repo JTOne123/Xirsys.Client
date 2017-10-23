@@ -25,17 +25,24 @@ namespace Xirsys.Client
             throw new NotImplementedException();
         }
 
-        // not working?
-        public async Task<XirsysResponseModel<StatsResponse>> GetStatsAsync(String path, StatMeasurement measurement, 
-            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, 
+        public Task<XirsysResponseModel<StatsResponse>> GetStatsAsync(String path, StatMeasurement measurement,
+            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null,
             CancellationToken cancelToken = default(CancellationToken))
         {
             ValidateMeasurement(measurement);
+            return GetStatsAsync(path, measurement.ToStringValue(), groupPrecision, groupStart, groupEnd, cancelToken);
+        }
+
+        // not working?
+        public async Task<XirsysResponseModel<StatsResponse>> GetStatsAsync(String path, String measurement, 
+            DatePrecision groupPrecision, DateTime groupStart, Nullable<DateTime> groupEnd = null, 
+            CancellationToken cancelToken = default(CancellationToken))
+        {
             var dateTimeStrFormat = groupPrecision.GetDateTimeFormatExact();
 
             var parameters = new QueryStringList(3)
                 {
-                    { "l", measurement.ToStringValue() },
+                    { "l", measurement },
                     { "gs", groupStart.ToString(dateTimeStrFormat) },
                 };
             if (groupEnd != null)
