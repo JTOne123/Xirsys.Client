@@ -88,7 +88,15 @@ namespace Xirsys.Client.Utilities
             return dateTime.ToUniversalTime().Subtract(EPOCH_DATETIME).TotalSeconds;
         }
 
+        public static DateTime GetDateTimeFromUnixMs(this Int64 longUnixMsTimestamp)
+        {
+            return EPOCH_DATETIME.AddMilliseconds(longUnixMsTimestamp);
+        }
 
+        public static Double ToUnixMsTimestamp(this DateTime dateTime)
+        {
+            return dateTime.ToUniversalTime().Subtract(EPOCH_DATETIME).TotalMilliseconds;
+        }
 
         public static String ToHttpString(this IEnumerable<KeyValuePair<String, String>> collection)
         {
