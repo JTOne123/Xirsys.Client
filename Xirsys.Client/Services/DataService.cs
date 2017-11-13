@@ -116,6 +116,18 @@ namespace Xirsys.Client
                 cancelToken: cancelToken);
         }
 
+        public Task<XirsysResponseModel<List<DataVersionResponse<TData>>>> ListDataKeyValuesAsync<TData>(String path,
+            CancellationToken cancelToken = default(CancellationToken))
+        {
+            return InternalGetAsync<List<DataVersionResponse<TData>>>(GetServiceMethodPath(DATA_SERVICE, path),
+                new QueryStringList(1)
+                {
+                    {"as", "1"}
+                },
+                okParseResponse: ListDataParseResponseWithVersion<TData>,
+                cancelToken: cancelToken);
+        }
+
         public async Task<XirsysResponseModel<List<TimeSeriesDataKey<TData>>>> GetDataKeyTimeSeriesAsync<TData>(String path, String key, 
             CancellationToken cancelToken = default(CancellationToken))
         {
