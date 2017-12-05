@@ -278,16 +278,16 @@ namespace Xirsys.Client
                     }
 
                     responseStr = await response.Content.ReadAsStringAsync();
-                    if (Logger.IsEnabled(LogLevel.Debug))
+                    if (Logger.IsEnabled(LogLevel.Trace))
+                    {
+                        // can be problematic if there is TOO much to print in httpContentStr
+                        Logger.LogTrace("RequestUri: {0} HttpVerb: {1} UserName: {2} HttpContent: {3} HttpResponse: {4}",
+                            requestUri, requestVerb, requestUserName, httpContentStr, responseStr);
+                    }
+                    else if (Logger.IsEnabled(LogLevel.Debug))
                     {
                         Logger.LogDebug("RequestUri: {0} HttpVerb: {1} HttpContent: {2} HttpResponse: {3}",
                             requestUri, requestVerb, httpContentStr.DebugLengthCheck(), responseStr.DebugLengthCheck());
-                    }
-                    else if (Logger.IsEnabled(LogLevel.Trace))
-                    {
-                        // can be problematic if there is TOO much to print in httpContentStr
-                        Logger.LogTrace("RequestUri: {0} HttpVerb: {1} HttpContent: {2} HttpResponse: {3}",
-                            requestUri, requestVerb, httpContentStr, responseStr);
                     }
 
                     return deserializeResponse(responseStr);
