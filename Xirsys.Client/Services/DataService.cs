@@ -17,14 +17,14 @@ namespace Xirsys.Client
     {
         protected const String DATA_SERVICE = "_data";
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, 
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, Boolean serializeNull = false,
             CancellationToken cancelToken = default(CancellationToken))
         {
-            return AddDataKeyAsync(path, key, value, null,
+            return AddDataKeyAsync(path, key, value, null, serializeNull,
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, String oldVersion, 
+        public Task<XirsysResponseModel<DataVersionResponse<TData>>> AddDataKeyAsync<TData>(String path, String key, TData value, String oldVersion, Boolean serializeNull = false,
             CancellationToken cancelToken = default(CancellationToken))
         {
             KeyValueModel<Object> addDataObj;
@@ -35,7 +35,7 @@ namespace Xirsys.Client
             {
                 serializeDataFunc = (contentData) =>
                     {
-                        var intermediateObj = JObject.FromObject(contentData);
+                        var intermediateObj = JsonNetExtensions.DeserializeJObject(contentData, serializeNull);
                         var valueToken = intermediateObj[KeyValueModel<Object>.VALUE_PROP];
                         if (valueToken == null || valueToken.Type != JTokenType.Object)
                         {
@@ -64,7 +64,9 @@ namespace Xirsys.Client
                 okParseFunc = DataParseResponseWithVersion<TData>;
             }
 
-            return InternalPutAsync(GetServiceMethodPath(DATA_SERVICE, path), addDataObj, serializeContentData: serializeDataFunc, okParseResponse: okParseFunc,
+            return InternalPutAsync(GetServiceMethodPath(DATA_SERVICE, path), addDataObj, 
+                serializeContentData: serializeDataFunc, serializeNull: serializeNull, 
+                okParseResponse: okParseFunc,
                 cancelToken: cancelToken);
         }
 

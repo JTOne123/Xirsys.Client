@@ -12,14 +12,16 @@ namespace Xirsys.Client.Serialization
 {
     public static class JsonNetExtensions
     {
-        private static readonly JsonSerializerSettings s_JsonSerializerSettings;
+        private static readonly JsonSerializerSettings s_DefaultJsonSerializerSettings;
+        private static readonly JsonSerializerSettings s_SerializeNullJsonSerializerSettings;
 
-        private static readonly JsonSerializer s_JsonSerializer;
+        private static readonly JsonSerializer s_DefaultJsonSerializer;
+        private static readonly JsonSerializer s_SerializeNullJsonSerializer;
         private static readonly JsonSerializer s_SessionPayloadTypeSerializer;
 
         static JsonNetExtensions()
         {
-            s_JsonSerializerSettings = new JsonSerializerSettings()
+            s_DefaultJsonSerializerSettings = new JsonSerializerSettings()
                 {
                     Formatting = Formatting.None,
                     NullValueHandling = NullValueHandling.Ignore,
@@ -28,20 +30,34 @@ namespace Xirsys.Client.Serialization
                     DateFormatHandling = DateFormatHandling.IsoDateFormat,
                     DateTimeZoneHandling = DateTimeZoneHandling.Utc,
                 };
+            s_SerializeNullJsonSerializerSettings = new JsonSerializerSettings()
+                {
+                    Formatting = Formatting.None,
+                    NullValueHandling = NullValueHandling.Include,
+                    TypeNameHandling = TypeNameHandling.None,
 
-            s_JsonSerializer = JsonSerializer.CreateDefault(s_JsonSerializerSettings);
+                    DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                    DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+                };
 
-            s_SessionPayloadTypeSerializer = JsonSerializer.CreateDefault(s_JsonSerializerSettings);
+            s_DefaultJsonSerializer = JsonSerializer.CreateDefault(s_DefaultJsonSerializerSettings);
+            s_SerializeNullJsonSerializer = JsonSerializer.CreateDefault(s_SerializeNullJsonSerializerSettings);
+
+            s_SessionPayloadTypeSerializer = JsonSerializer.CreateDefault(s_DefaultJsonSerializerSettings);
             s_SessionPayloadTypeSerializer.Converters.Add(new SessionPayloadTypeConverter());
         }
 
-        public static String SerializeObject(this Object value)
+        public static String SerializeObject(this Object value, Boolean serializeNull = false)
         {
             var stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
             using (var jsonTextWriter = new JsonTextWriter(stringWriter))
             {
-                jsonTextWriter.Formatting = s_JsonSerializer.Formatting;
-                s_JsonSerializer.Serialize(jsonTextWriter, value, null);
+                JsonSerializer serializer = serializeNull
+                    ? s_SerializeNullJsonSerializer
+                    : s_DefaultJsonSerializer;
+
+                jsonTextWriter.Formatting = serializer.Formatting;
+                serializer.Serialize(jsonTextWriter, value, null);
             }
             return stringWriter.ToString();
         }
@@ -58,8 +74,15 @@ namespace Xirsys.Client.Serialization
             */
             using (var jsonTextReader = new JsonTextReader(new StringReader(value)))
             {
-                return s_JsonSerializer.Deserialize<TObject>(jsonTextReader);
+                return s_DefaultJsonSerializer.Deserialize<TObject>(jsonTextReader);
             }
+        }
+
+        public static JObject DeserializeJObject<TObject>(this TObject obj, Boolean serializeNull = false)
+        {
+            return JObject.FromObject(obj, serializeNull
+                ? s_SerializeNullJsonSerializer
+                : s_DefaultJsonSerializer);
         }
 
         public static TPayload AsPayload<TPayload>(this BaseWireModel wireModel)
@@ -75,7 +98,7 @@ namespace Xirsys.Client.Serialization
                 return defaultValue;
             }
 
-            return payloadJObject.ToObject<TPayload>(s_JsonSerializer);
+            return payloadJObject.ToObject<TPayload>(s_DefaultJsonSerializer);
         }
 
         public static SessionPayloadType GetSessionPayloadType(this BaseWireModel wireModel)

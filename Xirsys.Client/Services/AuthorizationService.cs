@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xirsys.Client.Models.REST;
 using Xirsys.Client.Models.REST.Wire;
+using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
 
 namespace Xirsys.Client
@@ -76,7 +77,7 @@ namespace Xirsys.Client
             {
                 serializeDataFunc = (contentData) =>
                     {
-                        var intermediateObj = JObject.FromObject(contentData);
+                        var intermediateObj = JsonNetExtensions.DeserializeJObject(contentData);
                         var valueToken = intermediateObj[KeyValueModel<Object>.VALUE_PROP];
                         if (valueToken == null || valueToken.Type != JTokenType.Object)
                         {

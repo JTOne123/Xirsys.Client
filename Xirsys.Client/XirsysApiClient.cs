@@ -324,6 +324,7 @@ namespace Xirsys.Client
         protected async Task<XirsysResponseModel<TResponseData>> InternalPostAsync<TContentData, TResponseData>(String servicePath,
             TContentData data = default(TContentData), 
             Func<TContentData, String> serializeContentData = null,
+            Boolean serializeNull = false,
             Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null,
             CancellationToken cancelToken = default(CancellationToken))
         {
@@ -333,7 +334,7 @@ namespace Xirsys.Client
             }
             if (serializeContentData == null)
             {
-                serializeContentData = (contentData) => JsonNetExtensions.SerializeObject(contentData);
+                serializeContentData = (contentData) => JsonNetExtensions.SerializeObject(contentData, serializeNull);
             }
 
             using (var httpReq = new HttpRequestMessage(HttpMethod.Post, BaseApiUrl + servicePath))
@@ -347,6 +348,7 @@ namespace Xirsys.Client
         protected async Task<XirsysResponseModel<TResponseData>> InternalPutAsync<TContentData, TResponseData>(String servicePath,
             TContentData data = default(TContentData),
             Func<TContentData, String> serializeContentData = null,
+            Boolean serializeNull = false,
             Func<String, JObject, XirsysResponseModel<TResponseData>> okParseResponse = null,
             CancellationToken cancelToken = default(CancellationToken))
         {
@@ -356,7 +358,7 @@ namespace Xirsys.Client
             }
             if (serializeContentData == null)
             {
-                serializeContentData = (contentData) => JsonNetExtensions.SerializeObject(contentData);
+                serializeContentData = (contentData) => JsonNetExtensions.SerializeObject(contentData, serializeNull);
             }
 
             using (var httpReq = new HttpRequestMessage(HttpMethod.Put, BaseApiUrl + servicePath))
