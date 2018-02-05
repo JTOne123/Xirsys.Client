@@ -155,19 +155,21 @@ namespace Xirsys.Client
         }
 
         public Task<XirsysResponseModel<DataVersionResponse<TAccountModel>>> UpdateSubAccountAsync<TAccountModel, TUpdateAccountModel>(String userName, TUpdateAccountModel modifySubAccountProps,
+            Boolean serializeNull = false,
             CancellationToken cancelToken = default(CancellationToken))
             where TAccountModel : SubAccountModel
-            where TUpdateAccountModel : UpdateSubAccountModel
+            where TUpdateAccountModel : class
         {
             // not documented but it was mentioned in passing that if a field is serialized as null on the wire
             // the API would remove the field, otherwise only fields sent are modified
             // right now our XirsysApiClient ignores null fields (does not serialize) so this can't be used yet
-            // RENOTE: currently sending null will set the field as null, it DOES NOT __remove__ the field from the object (which was the real question above)
+            // RE-NOTE: currently sending null will set the field as null, it DOES NOT __remove__ the field from the object (which was the real question above)
             // using the serializeNull parameter we will control whether to serialize nulls or not
 
             // cannot modify username
             return InternalPostAsync<KeyValueModel<TUpdateAccountModel>, DataVersionResponse<TAccountModel>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
                 new KeyValueModel<TUpdateAccountModel>(userName, modifySubAccountProps), okParseResponse: DataParseResponseWithVersion<TAccountModel>,
+                serializeNull: serializeNull,
                 cancelToken: cancelToken);
         }
     }
