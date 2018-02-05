@@ -154,8 +154,7 @@ namespace Xirsys.Client
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<DataVersionResponse<TAccountModel>>> UpdateSubAccountAsync<TAccountModel, TUpdateAccountModel>(String userName, TUpdateAccountModel modifySubAccountProps, 
-            Boolean serializeNull = false,
+        public Task<XirsysResponseModel<DataVersionResponse<TAccountModel>>> UpdateSubAccountAsync<TAccountModel, TUpdateAccountModel>(String userName, TUpdateAccountModel modifySubAccountProps,
             CancellationToken cancelToken = default(CancellationToken))
             where TAccountModel : SubAccountModel
             where TUpdateAccountModel : UpdateSubAccountModel
@@ -168,8 +167,7 @@ namespace Xirsys.Client
 
             // cannot modify username
             return InternalPostAsync<KeyValueModel<TUpdateAccountModel>, DataVersionResponse<TAccountModel>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
-                new KeyValueModel<TUpdateAccountModel>(userName, modifySubAccountProps), okParseResponse: DataParseResponseWithVersion<TAccountModel>, 
-                serializeNull: serializeNull,
+                new KeyValueModel<TUpdateAccountModel>(userName, modifySubAccountProps), okParseResponse: DataParseResponseWithVersion<TAccountModel>,
                 cancelToken: cancelToken);
         }
     }
