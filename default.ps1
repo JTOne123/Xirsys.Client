@@ -179,7 +179,8 @@ Task NetStandardPackage {
     $rev = Get-RevisionNumber $vSplit[3] "0"
     $packageVersion = "$major.$minor.$patch.$rev"
 
-    exec { . "$msbuild_path" /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" "/p:Version=$packageVersion" "/p:PackageVersion=$packageVersion" "/p:InformationalVersion=$packageVersion" "/p:AssemblyVersion=$packageVersion" "/p:FileVersion=$packageVersion" "/p:IncludeSymbols=$($includeSymbols.ToString().ToLower())" "/t:Restore;Clean;Build;Pack" }
+    exec { . "$msbuild_path" /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" "/p:Version=$packageVersion" "/p:PackageVersion=$packageVersion" "/p:InformationalVersion=$packageVersion" "/p:AssemblyVersion=$packageVersion" "/p:FileVersion=$packageVersion" "/p:IncludeSymbols=$($includeSymbols.ToString().ToLower())" "/t:Clean" }
+    exec { . "$msbuild_path" /nologo /verbosity:quiet "$csproj_file" "/p:Configuration=$target_config" "/p:Version=$packageVersion" "/p:PackageVersion=$packageVersion" "/p:InformationalVersion=$packageVersion" "/p:AssemblyVersion=$packageVersion" "/p:FileVersion=$packageVersion" "/p:IncludeSymbols=$($includeSymbols.ToString().ToLower())" "/t:Restore;Build;Pack" }
 }
 
 Task CreateNuGetPackage -depends Compile {
