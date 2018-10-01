@@ -56,6 +56,16 @@ namespace Xirsys.Client
         {
         }
 
+        public XirsysApiClient(String apiIdent, String apiSecret, ILogger<XirsysApiClient> logger)
+            : this(RegionGateways.First().Value, apiIdent, apiSecret, logger)
+        {
+        }
+
+        public XirsysApiClient(XirsysRegion gatewayRegion, String apiIdent, String apiSecret, ILogger<XirsysApiClient> logger)
+            : this(RegionGateways[gatewayRegion], apiIdent, apiSecret, logger)
+        {
+        }
+
         public XirsysApiClient(String apiBaseUrl, String apiIdent, String apiSecret, ILogger logger)
         {
             this.Logger = logger;
