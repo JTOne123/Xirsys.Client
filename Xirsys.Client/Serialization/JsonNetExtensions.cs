@@ -49,6 +49,13 @@ namespace Xirsys.Client.Serialization
 
         public static String SerializeObject(this Object value, Boolean serializeNull = false)
         {
+            if (value == null)
+            {
+                return serializeNull
+                    ? "null"
+                    : "";
+            }
+
             var stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
             using (var jsonTextWriter = new JsonTextWriter(stringWriter))
             {
