@@ -26,7 +26,12 @@ namespace Xirsys.Client
                     { XirsysRegion.UsaEast,   "https://us.xirsys.com" },
                     { XirsysRegion.Europe,    "https://es.xirsys.com" },
                     { XirsysRegion.Asia,      "https://ss.xirsys.com" },
+                    { XirsysRegion.Singapore, "https://ss.xirsys.com" },
                     { XirsysRegion.Australia, "https://ms.xirsys.com" },
+
+                    { XirsysRegion.Shanghai,  "https://sh.xirsys.com" },
+                    { XirsysRegion.Bangalore, "https://bs.xirsys.com" },
+                    { XirsysRegion.Tokyo,     "https://tk.xirsys.com" },
                 };
         }
 

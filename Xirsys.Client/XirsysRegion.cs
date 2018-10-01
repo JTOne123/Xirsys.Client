@@ -9,7 +9,15 @@ namespace Xirsys.Client
         UsaWest,
         UsaEast,
         Europe,
+        [Obsolete("Switch to Singapore")]
         Asia,
-        Australia
+        Australia,
+
+        // previously Asia
+        Singapore,
+
+        Shanghai,
+        Bangalore,
+        Tokyo
     }
 }
