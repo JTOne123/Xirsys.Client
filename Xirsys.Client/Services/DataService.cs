@@ -124,7 +124,7 @@ namespace Xirsys.Client
             return InternalGetAsync<List<DataVersionResponse<TData>>>(GetServiceMethodPath(DATA_SERVICE, path),
                 new QueryStringList(1)
                 {
-                    {"as", "1"}
+                    {"as", "datum"}
                 },
                 okParseResponse: ListDataParseResponseWithVersion<TData>,
                 cancelToken: cancelToken);

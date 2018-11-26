@@ -148,7 +148,7 @@ namespace Xirsys.Client
             return InternalGetAsync<List<DataVersionResponse<TAccountModel>>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
                 new QueryStringList(1)
                     {
-                        {"as", "1"}
+                        {"as", "datum"}
                     },
                 okParseResponse: ListDataParseResponseWithVersion<TAccountModel>,
                 cancelToken: cancelToken);
