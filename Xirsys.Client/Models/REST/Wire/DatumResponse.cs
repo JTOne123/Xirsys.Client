@@ -24,15 +24,16 @@ namespace Xirsys.Client.Models.REST.Wire
         [DataMember(Name = "t")]
         public long Timestamp { get; set; }
 
+        // additional metadata indexes for this object
+        [DataMember(Name = "m")]
+        public Dictionary<String, String> Meta { get; set; }
+
         [DataMember(Name = "v")]
         public TData Data { get; set; }
 
         // no idea wtf these are
         [DataMember(Name = "s")]
-        public String S { get; set; }
-
-        [DataMember(Name = "m")]
-        public Object M { get; set; }
+        public String S { get; set; } // always seems to have the value "c"
 
         [DataMember(Name = "a")]
         public Object A { get; set; }
@@ -49,12 +50,12 @@ namespace Xirsys.Client.Models.REST.Wire
         {
         }
 
-        public DatumResponse(String owner, String key, String layer, String path, long timestamp, String s, Object m, Object a, String id, String rev)
-            : this(owner, key, layer, path, timestamp, s, m, a, id, rev, default(TData))
+        public DatumResponse(String owner, String key, String layer, String path, long timestamp, String s, Dictionary<String, String> meta, Object a, String id, String rev)
+            : this(owner, key, layer, path, timestamp, s, meta, a, id, rev, default(TData))
         {
         }
 
-        public DatumResponse(String owner, String key, String layer, String path, long timestamp, String s, Object m, Object a, String id, String rev, TData data)
+        public DatumResponse(String owner, String key, String layer, String path, long timestamp, String s, Dictionary<String, String> meta, Object a, String id, String rev, TData data)
         {
             this.Owner = owner;
             this.Key = key;
@@ -62,7 +63,7 @@ namespace Xirsys.Client.Models.REST.Wire
             this.Path = path;
             this.Timestamp = timestamp;
             this.S = s;
-            this.M = m;
+            this.Meta = meta;
             this.A = a;
             this.Id = id;
             this.Rev = rev;
@@ -72,14 +73,14 @@ namespace Xirsys.Client.Models.REST.Wire
         public static DatumResponse<TData> CopyAndFormatData<TInputData>(DatumResponse<TInputData> copyDatum, Func<TInputData, TData> formatInputDataFunc)
         {
             return new DatumResponse<TData>(copyDatum.Owner, copyDatum.Key, copyDatum.Layer, copyDatum.Path, copyDatum.Timestamp, 
-                copyDatum.S, copyDatum.M, copyDatum.A, copyDatum.Id, copyDatum.Rev, formatInputDataFunc(copyDatum.Data));
+                copyDatum.S, copyDatum.Meta, copyDatum.A, copyDatum.Id, copyDatum.Rev, formatInputDataFunc(copyDatum.Data));
         }
 
         protected bool Equals(DatumResponse<TData> other)
         {
-            return string.Equals(Owner, other.Owner) && string.Equals(Key, other.Key) && string.Equals(Layer, other.Layer) && string.Equals(Path, other.Path) && 
-                   Timestamp == other.Timestamp && EqualityComparer<TData>.Default.Equals(Data, other.Data) && 
-                   string.Equals(S, other.S) && Equals(M, other.M) && Equals(A, other.A) && string.Equals(Id, other.Id) && string.Equals(Rev, other.Rev);
+            return String.Equals(Owner, other.Owner) && String.Equals(Key, other.Key) && String.Equals(Layer, other.Layer) && String.Equals(Path, other.Path) && 
+                   Timestamp == other.Timestamp && Equals(Meta, other.Meta) && EqualityComparer<TData>.Default.Equals(Data, other.Data) && 
+                   String.Equals(S, other.S) && Equals(A, other.A) && String.Equals(Id, other.Id) && String.Equals(Rev, other.Rev);
         }
 
         public override bool Equals(object obj)
@@ -99,9 +100,9 @@ namespace Xirsys.Client.Models.REST.Wire
                 hashCode = (hashCode * 397) ^ (Layer != null ? Layer.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Path != null ? Path.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ Timestamp.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Meta != null ? Meta.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ EqualityComparer<TData>.Default.GetHashCode(Data);
                 hashCode = (hashCode * 397) ^ (S != null ? S.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (M != null ? M.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (A != null ? A.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Id != null ? Id.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Rev != null ? Rev.GetHashCode() : 0);

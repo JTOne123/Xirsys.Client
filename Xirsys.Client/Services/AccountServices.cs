@@ -142,15 +142,15 @@ namespace Xirsys.Client
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<List<DataVersionResponse<TAccountModel>>>> ListSubAccountValuesAsync<TAccountModel>(CancellationToken cancelToken = default(CancellationToken))
+        public Task<XirsysResponseModel<List<DatumResponse<TAccountModel>>>> ListSubAccountValuesAsync<TAccountModel>(CancellationToken cancelToken = default(CancellationToken))
             where TAccountModel : SubAccountModel
         {
-            return InternalGetAsync<List<DataVersionResponse<TAccountModel>>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
+            return InternalGetAsync<List<DatumResponse<TAccountModel>>>(GetServiceMethodPath(ACCOUNT_SUBACCOUNTS_SERVICE),
                 new QueryStringList(1)
                     {
                         {"as", "datum"}
                     },
-                okParseResponse: ListParseResponseWithVersion<TAccountModel>,
+                okParseResponse: ListDatumParseResponse<TAccountModel>,
                 cancelToken: cancelToken);
         }
 

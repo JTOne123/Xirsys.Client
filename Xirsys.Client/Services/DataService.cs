@@ -264,43 +264,5 @@ namespace Xirsys.Client
             var responseWithVersion = new DataVersionResponse<TResponseData>(serializedToResponseFunc(valueData), versionValue);
             return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.OK_STATUS, responseWithVersion, responseStr);
         }
-
-
-
-        private XirsysResponseModel<List<DatumResponse<TResponseData>>> ListDatumParseResponse<TResponseData>(String responseStr, JObject parsedJObject)
-        {
-            return ListDatumParseResponse<TResponseData, TResponseData>(responseStr, parsedJObject, (deserialized) => deserialized);
-        }
-
-        private XirsysResponseModel<List<DatumResponse<TResponseData>>> ListDatumParseResponse<TResponseData, TSerializedData>(String responseStr, JObject parsedJObject,
-            Func<TSerializedData, TResponseData> serializedToResponseFunc = null)
-        {
-            var valueToken = parsedJObject[VALUE_PROP];
-            if (valueToken == null ||
-                valueToken.Type != JTokenType.Array)
-            {
-                // value should never be null or NOT an array, if it is the service layer has some bugs
-                Logger.LogWarning("Invalid Xirsys Api Response. Value property is null or not an array. Response: {0}", responseStr);
-                return new XirsysResponseModel<List<DatumResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
-            }
-
-            var listOfDatums = new List<DatumResponse<TResponseData>>(valueToken.Count());
-            foreach (var valueItem in valueToken)
-            {
-                var rawDatum = valueItem.ToObject<DatumResponse<TSerializedData>>();
-                if (rawDatum == null)
-                {
-                    // likewise if we can't serialize back to data type, there is a problem
-                    Logger.LogWarning("Invalid Xirsys Api Response. Value property did not deserialize to {0}. Response: {1}", typeof(TSerializedData).Name, responseStr);
-                    return new XirsysResponseModel<List<DatumResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
-                }
-
-                // technically TSerializedData will also contain a _ver_ field, however because this should be identical to the _id we don't really need it
-                // at this level and can ignore it
-                listOfDatums.Add(DatumResponse<TResponseData>.CopyAndFormatData<TSerializedData>(rawDatum, serializedToResponseFunc));
-            }
-
-            return new XirsysResponseModel<List<DatumResponse<TResponseData>>>(SystemMessages.OK_STATUS, listOfDatums, responseStr);
-        }
     }
 }
