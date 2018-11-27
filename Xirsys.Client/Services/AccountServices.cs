@@ -150,7 +150,7 @@ namespace Xirsys.Client
                     {
                         {"as", "datum"}
                     },
-                okParseResponse: ListDataParseResponseWithVersion<TAccountModel>,
+                okParseResponse: ListParseResponseWithVersion<TAccountModel>,
                 cancelToken: cancelToken);
         }
 

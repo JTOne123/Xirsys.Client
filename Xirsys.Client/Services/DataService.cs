@@ -118,15 +118,15 @@ namespace Xirsys.Client
                 cancelToken: cancelToken);
         }
 
-        public Task<XirsysResponseModel<List<DataVersionResponse<TData>>>> ListDataKeyValuesAsync<TData>(String path,
+        public Task<XirsysResponseModel<List<DatumResponse<TData>>>> ListDataKeyValuesAsync<TData>(String path,
             CancellationToken cancelToken = default(CancellationToken))
         {
-            return InternalGetAsync<List<DataVersionResponse<TData>>>(GetServiceMethodPath(DATA_SERVICE, path),
+            return InternalGetAsync<List<DatumResponse<TData>>>(GetServiceMethodPath(DATA_SERVICE, path),
                 new QueryStringList(1)
                 {
                     {"as", "datum"}
                 },
-                okParseResponse: ListDataParseResponseWithVersion<TData>,
+                okParseResponse: ListDatumParseResponse<TData>,
                 cancelToken: cancelToken);
         }
 
@@ -265,12 +265,14 @@ namespace Xirsys.Client
             return new XirsysResponseModel<DataVersionResponse<TResponseData>>(SystemMessages.OK_STATUS, responseWithVersion, responseStr);
         }
 
-        protected XirsysResponseModel<List<DataVersionResponse<TResponseData>>> ListDataParseResponseWithVersion<TResponseData>(String responseStr, JObject parsedJObject)
+
+
+        private XirsysResponseModel<List<DatumResponse<TResponseData>>> ListDatumParseResponse<TResponseData>(String responseStr, JObject parsedJObject)
         {
-            return ListDataParseResponseWithVersion<TResponseData, TResponseData>(responseStr, parsedJObject, (deserialized) => deserialized);
+            return ListDatumParseResponse<TResponseData, TResponseData>(responseStr, parsedJObject, (deserialized) => deserialized);
         }
 
-        protected XirsysResponseModel<List<DataVersionResponse<TResponseData>>> ListDataParseResponseWithVersion<TResponseData, TSerializedData>(String responseStr, JObject parsedJObject,
+        private XirsysResponseModel<List<DatumResponse<TResponseData>>> ListDatumParseResponse<TResponseData, TSerializedData>(String responseStr, JObject parsedJObject,
             Func<TSerializedData, TResponseData> serializedToResponseFunc = null)
         {
             var valueToken = parsedJObject[VALUE_PROP];
@@ -279,46 +281,26 @@ namespace Xirsys.Client
             {
                 // value should never be null or NOT an array, if it is the service layer has some bugs
                 Logger.LogWarning("Invalid Xirsys Api Response. Value property is null or not an array. Response: {0}", responseStr);
-                return new XirsysResponseModel<List<DataVersionResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
+                return new XirsysResponseModel<List<DatumResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
             }
 
-            var listWithVersions = new List<DataVersionResponse<TResponseData>>(valueToken.Count());
+            var listOfDatums = new List<DatumResponse<TResponseData>>(valueToken.Count());
             foreach (var valueItem in valueToken)
             {
-                var valueData = valueItem.ToObject<TSerializedData>();
-                if (valueData == null)
+                var rawDatum = valueItem.ToObject<DatumResponse<TSerializedData>>();
+                if (rawDatum == null)
                 {
                     // likewise if we can't serialize back to data type, there is a problem
                     Logger.LogWarning("Invalid Xirsys Api Response. Value property did not deserialize to {0}. Response: {1}", typeof(TSerializedData).Name, responseStr);
-                    return new XirsysResponseModel<List<DataVersionResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
+                    return new XirsysResponseModel<List<DatumResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
                 }
 
-                var versionToken = valueItem[VersionResponse.VERSION_PROP];
-                String versionValue;
-                if (versionToken != null &&
-                    versionToken.Type == JTokenType.String)
-                {
-                    versionValue = versionToken.ToObject<String>();
-                    if (String.IsNullOrEmpty(versionValue))
-                    {
-                        // sort of a problem, but we can continue
-                        Logger.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was empty. Response: {{1}}", responseStr);
-                        versionValue = String.Empty;
-                    }
-                }
-                else
-                {
-                    // sort of a problem, but we can continue
-                    Logger.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was not present or invalid type. Response: {{1}}", responseStr);
-                    versionValue = String.Empty;
-                }
-
-                listWithVersions.Add(
-                    new DataVersionResponse<TResponseData>(serializedToResponseFunc(valueData), versionValue)
-                );
+                // technically TSerializedData will also contain a _ver_ field, however because this should be identical to the _id we don't really need it
+                // at this level and can ignore it
+                listOfDatums.Add(DatumResponse<TResponseData>.CopyAndFormatData<TSerializedData>(rawDatum, serializedToResponseFunc));
             }
 
-            return new XirsysResponseModel<List<DataVersionResponse<TResponseData>>>(SystemMessages.OK_STATUS, listWithVersions, responseStr);
+            return new XirsysResponseModel<List<DatumResponse<TResponseData>>>(SystemMessages.OK_STATUS, listOfDatums, responseStr);
         }
     }
 }

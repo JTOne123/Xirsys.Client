@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xirsys.Client.Extensions;
 using Xirsys.Client.Models.REST;
+using Xirsys.Client.Models.REST.Wire;
 using Xirsys.Client.Serialization;
 using Xirsys.Client.Utilities;
 
@@ -403,6 +404,64 @@ namespace Xirsys.Client
                 return await InternalSendAsync(httpReq, this.Ident, this.Secret, 
                     (responseStr) => ParseResponse(responseStr, okParseResponse, null, null), cancelToken);
             }
+        }
+
+
+
+        protected XirsysResponseModel<List<DataVersionResponse<TResponseData>>> ListParseResponseWithVersion<TResponseData>(String responseStr, JObject parsedJObject)
+        {
+            return ListParseResponseWithVersion<TResponseData, TResponseData>(responseStr, parsedJObject, (deserialized) => deserialized);
+        }
+
+        protected XirsysResponseModel<List<DataVersionResponse<TResponseData>>> ListParseResponseWithVersion<TResponseData, TSerializedData>(String responseStr, JObject parsedJObject,
+            Func<TSerializedData, TResponseData> serializedToResponseFunc = null)
+        {
+            var valueToken = parsedJObject[VALUE_PROP];
+            if (valueToken == null ||
+                valueToken.Type != JTokenType.Array)
+            {
+                // value should never be null or NOT an array, if it is the service layer has some bugs
+                Logger.LogWarning("Invalid Xirsys Api Response. Value property is null or not an array. Response: {0}", responseStr);
+                return new XirsysResponseModel<List<DataVersionResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
+            }
+
+            var listWithVersions = new List<DataVersionResponse<TResponseData>>(valueToken.Count());
+            foreach (var valueItem in valueToken)
+            {
+                var valueData = valueItem.ToObject<TSerializedData>();
+                if (valueData == null)
+                {
+                    // likewise if we can't serialize back to data type, there is a problem
+                    Logger.LogWarning("Invalid Xirsys Api Response. Value property did not deserialize to {0}. Response: {1}", typeof(TSerializedData).Name, responseStr);
+                    return new XirsysResponseModel<List<DataVersionResponse<TResponseData>>>(SystemMessages.ERROR_STATUS, ErrorMessages.Parsing, null, responseStr);
+                }
+
+                var versionToken = valueItem[VersionResponse.VERSION_PROP];
+                String versionValue;
+                if (versionToken != null &&
+                    versionToken.Type == JTokenType.String)
+                {
+                    versionValue = versionToken.ToObject<String>();
+                    if (String.IsNullOrEmpty(versionValue))
+                    {
+                        // sort of a problem, but we can continue
+                        Logger.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was empty. Response: {{1}}", responseStr);
+                        versionValue = String.Empty;
+                    }
+                }
+                else
+                {
+                    // sort of a problem, but we can continue
+                    Logger.LogWarning($"Invalid Xirsys Api Response. {VersionResponse.VERSION_PROP} property was not present or invalid type. Response: {{1}}", responseStr);
+                    versionValue = String.Empty;
+                }
+
+                listWithVersions.Add(
+                    new DataVersionResponse<TResponseData>(serializedToResponseFunc(valueData), versionValue)
+                );
+            }
+
+            return new XirsysResponseModel<List<DataVersionResponse<TResponseData>>>(SystemMessages.OK_STATUS, listWithVersions, responseStr);
         }
     }
 }
